@@ -1,0 +1,6 @@
+{
+  "name": "SE2026 Daily Monitoring System",
+  "description": "Daily monitoring system for field enumeration activities during the 2026 Economic Census (SE2026) by BPS Berau Regency.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

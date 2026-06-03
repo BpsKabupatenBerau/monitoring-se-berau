@@ -1,0 +1,201 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "User profiles involved in the SE2026 Field Operations Monitoring System.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique User ID"
+        },
+        "username": {
+          "type": "string",
+          "description": "Access username"
+        },
+        "name": {
+          "type": "string",
+          "description": "Full name of the census officer"
+        },
+        "role": {
+          "type": "string",
+          "enum": ["ADMIN", "REGIONAL_COORDINATOR", "PML", "PPL"],
+          "description": "System access privilege role"
+        },
+        "district": {
+          "type": "string",
+          "description": "Kecamatan assigned"
+        },
+        "pmlId": {
+          "type": "string",
+          "description": "PML Supervisor ID if PPL"
+        },
+        "regCoId": {
+          "type": "string",
+          "description": "Regional Coordinator ID if PML"
+        }
+      },
+      "required": ["id", "username", "name", "role"]
+    },
+    "Plot": {
+      "title": "Plot",
+      "description": "Census blocks or Sub-SLS (Satuan Lingkungan Setempat) assigned to officers.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Plot ID"
+        },
+        "district": {
+          "type": "string",
+          "description": "Kecamatan name"
+        },
+        "village": {
+          "type": "string",
+          "description": "Village/Desa/Kelurahan name"
+        },
+        "sls": {
+          "type": "string",
+          "description": "SLS Code"
+        },
+        "subSls": {
+          "type": "string",
+          "description": "Sub-SLS name (e.g. RT 01)"
+        },
+        "assignedPplId": {
+          "type": "string",
+          "description": "ID of the assigned PPL"
+        },
+        "assignedPmlId": {
+          "type": "string",
+          "description": "ID of the assigned PML"
+        }
+      },
+      "required": ["id", "district", "village", "sls", "subSls", "assignedPplId", "assignedPmlId"]
+    },
+    "DailySubmission": {
+      "title": "DailySubmission",
+      "description": "Daily progress records submitted by PMLs on behalf of PPLs for specific plots.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Submission ID"
+        },
+        "date": {
+          "type": "string",
+          "description": "Record date (YYYY-MM-DD)"
+        },
+        "plotId": {
+          "type": "string",
+          "description": "Assigned Plot ID"
+        },
+        "pplId": {
+          "type": "string",
+          "description": "PPL in charge"
+        },
+        "status": {
+          "type": "string",
+          "enum": ["NOT_STARTED", "IN_PROGRESS", "COMPLETED", "BLOCKED"],
+          "description": "Status of the census block"
+        },
+        "completedUnits": {
+          "type": "number",
+          "description": "Number of households / business facilities enumerated on that day"
+        },
+        "submittedByPmlId": {
+          "type": "string",
+          "description": "PML supervisor who recorded this entry"
+        },
+        "issueIndicator": {
+          "type": "boolean",
+          "description": "Whether an issue arose during work"
+        },
+        "issueDescription": {
+          "type": "string",
+          "description": "Description of the field issue"
+        },
+        "timestamp": {
+          "type": "string",
+          "description": "ISO timestamp of submission creation"
+        },
+        "lastModifiedTimestamp": {
+          "type": "string",
+          "description": "ISO timestamp of last edits made"
+        }
+      },
+      "required": ["id", "date", "plotId", "pplId", "status", "completedUnits", "timestamp"]
+    },
+    "Issue": {
+      "title": "Issue",
+      "description": "Field operational issues created synchronously from daily monitor reports.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Issue ID"
+        },
+        "submissionId": {
+          "type": "string",
+          "description": "Associated DailySubmission ID"
+        },
+        "pplId": {
+          "type": "string",
+          "description": "PPL ID who experienced the issue"
+        },
+        "pplName": {
+          "type": "string",
+          "description": "Name of the PPL"
+        },
+        "plotId": {
+          "type": "string",
+          "description": "Plot ID"
+        },
+        "areaLabel": {
+          "type": "string",
+          "description": "Descriptive area info formatted"
+        },
+        "date": {
+          "type": "string",
+          "description": "Issue reported date"
+        },
+        "description": {
+          "type": "string",
+          "description": "Detail description of the operational obstacle"
+        },
+        "status": {
+          "type": "string",
+          "enum": ["OPEN", "RESOLVED"],
+          "description": "Resolution status"
+        },
+        "resolutionNotes": {
+          "type": "string",
+          "description": "Supervisory response resolution notes"
+        },
+        "resolvedAt": {
+          "type": "string",
+          "description": "ISO timestamp of resolution"
+        }
+      },
+      "required": ["id", "submissionId", "pplId", "plotId", "date", "description", "status"]
+    }
+  },
+  "firestore": {
+    "users": {
+      "schema": "User",
+      "description": "List of system operators"
+    },
+    "plots": {
+      "schema": "Plot",
+      "description": "List of assigned sensor blocks"
+    },
+    "submissions": {
+      "schema": "DailySubmission",
+      "description": "Live daily progress submissions database"
+    },
+    "issues": {
+      "schema": "Issue",
+      "description": "Issues and obstacles submitted for resolution"
+    }
+  }
+}
