@@ -32,12 +32,10 @@ import { User, Plot, DailySubmission, Issue, UserRole, MonitoringStatus } from '
  * The DB uses 'KORWIL', the app uses 'REGIONAL_COORDINATOR'.
  */
 function mapPeran(peran: string): UserRole {
-  if (peran === 'KORWIL') return 'REGIONAL_COORDINATOR';
   return peran as UserRole;
 }
 
 function mapPeranToDb(role: UserRole): string {
-  if (role === 'REGIONAL_COORDINATOR') return 'KORWIL';
   return role;
 }
 
