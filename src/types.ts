@@ -69,3 +69,30 @@ export interface DashboardStats {
   openIssues: number;
   progressPercentage: number;
 }
+
+export interface AssignmentRow {
+  id: string;
+  idsubsls: string;
+  kecamatan: string;
+  desa: string;
+  nama_sls?: string;
+
+  korwil_id?: string | null;
+  pml_id?: string | null;
+  ppl_id?: string | null;
+
+  korwil?: {
+    id: string;
+    nama_lengkap: string;
+  } | null;
+
+  pml?: {
+    id: string;
+    nama_lengkap: string;
+  } | null;
+
+  ppl?: {
+    id: string;
+    nama_lengkap: string;
+  } | null;
+}

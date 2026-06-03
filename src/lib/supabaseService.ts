@@ -762,3 +762,102 @@ export async function signInUser(usernameOrEmail: string, password?: string): Pr
   if (error || !data) return null;
   return rowToUser(data as PenggunaRow);
 }
+
+
+export async function getAssignments() {
+  const { data, error } = await supabase
+    .from('plot_wilayah')
+    .select(`
+      id,
+      idsubsls,
+      kecamatan,
+      desa,
+      nama_sls,
+      target_prelist,
+
+      korwil_id,
+      pml_id,
+      ppl_id,
+
+      korwil:korwil_id (
+        id,
+        nama_lengkap
+      ),
+
+      pml:pml_id (
+        id,
+        nama_lengkap
+      ),
+
+      ppl:ppl_id (
+        id,
+        nama_lengkap
+      )
+    `)
+    .order('kecamatan')
+    .order('desa');
+
+  if (error) throw error;
+
+  return data;
+}
+
+export async function getKorwilList() {
+  const { data, error } = await supabase
+    .from('pengguna')
+    .select('id,nama_lengkap')
+    .eq('peran', 'KORWIL')
+    .eq('status', 'AKTIF')
+    .order('nama_lengkap');
+
+  if (error) throw error;
+
+  return data;
+}
+
+export async function getPmlList() {
+  const { data, error } = await supabase
+    .from('pengguna')
+    .select('id,nama_lengkap')
+    .eq('peran', 'PML')
+    .eq('status', 'AKTIF')
+    .order('nama_lengkap');
+
+  if (error) throw error;
+
+  return data;
+}
+
+export async function getPplList() {
+  const { data, error } = await supabase
+    .from('pengguna')
+    .select('id,nama_lengkap')
+    .eq('peran', 'PPL')
+    .eq('status', 'AKTIF')
+    .order('nama_lengkap');
+
+  if (error) throw error;
+
+  return data;
+}
+
+export async function bulkAssignPlots(
+  plotIds: string[],
+  korwilId: string | null,
+  pmlId: string | null,
+  pplId: string | null
+) {
+  const { error } = await supabase
+    .from('plot_wilayah')
+    .update({
+      korwil_id: korwilId,
+      pml_id: pmlId,
+      ppl_id: pplId,
+      updated_at: new Date().toISOString(),
+    })
+    .in('id', plotIds);
+
+  if (error) throw error;
+
+  return true;
+}

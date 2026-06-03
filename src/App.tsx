@@ -16,6 +16,7 @@ import ReportExport from './components/ReportExport';
 import IssueMonitoring from './components/IssueMonitoring';
 import LandingPage from './components/LandingPage';
 import LoginPage from './components/LoginPage';
+import AssignmentManagement from './components/AssignmentManagement';
 
 import {
   LayoutDashboard,
@@ -223,38 +224,84 @@ export default function App() {
   const getRoleLabel = (role: string) => {
     switch (role) {
       case 'ADMIN':                return 'ADMIN';
+      case 'SUPERVISOR':           return 'SUPERVISOR'
       case 'REGIONAL_COORDINATOR': return 'KORWIL';
-      case 'PML':                  return 'PML (SUPERVISOR)';
+      case 'PML':                  return 'PML (PENGAWAS)';
       case 'PPL':                  return 'PPL (PENCACAH)';
       default:                     return role;
     }
   };
 
   const getTabsByRole = () => {
-    switch (currentUser.role) {
-      case 'ADMIN':
-        return [
-          { id: 'dashboard', name: 'Dashboard Monitoring', icon: LayoutDashboard },
-          { id: 'plots',     name: 'Master Plot SLS',      icon: Database },
-          { id: 'export',    name: 'Laporan & Ekspor',     icon: FileSpreadsheet },
-          { id: 'issues',    name: 'Daftar Kendala',       icon: AlertTriangle },
-        ];
-      case 'REGIONAL_COORDINATOR':
-        return [
-          { id: 'dashboard', name: 'Dashboard Korwil', icon: LayoutDashboard },
-          { id: 'export',    name: 'Laporan & Ekspor', icon: FileSpreadsheet },
-          { id: 'issues',    name: 'Pantau Kendala',   icon: AlertTriangle },
-        ];
-      case 'PML':
-        return [
-          { id: 'dashboard', name: 'Dashboard PML',   icon: LayoutDashboard },
-          { id: 'export',    name: 'Laporan & Ekspor', icon: FileSpreadsheet },
-        ];
-      case 'PPL':
-      default:
-        return [{ id: 'dashboard', name: 'Beban Tugas & Riwayat', icon: LayoutDashboard }];
-    }
-  };
+  switch (currentUser.role) {
+
+    case 'ADMIN':
+      return [
+        {
+          id: 'dashboard', name: 'Dashboard Monitoring', icon: LayoutDashboard,
+        },
+        {
+          id: 'assignment', name: 'Penugasan Wilayah', icon: Database,
+        },
+        {
+          id: 'plots', name: 'Master Plot SLS', icon: Database,
+        },
+        {
+          id: 'export', name: 'Laporan & Ekspor', icon: FileSpreadsheet,
+        },
+        {
+          id: 'issues', name: 'Daftar Kendala', icon: AlertTriangle,
+        },
+      ];
+
+    case 'SUPERVISOR':
+      return [
+        {
+          id: 'dashboard', name: 'Dashboard Monitoring', icon: LayoutDashboard,
+        },
+        {
+          id: 'assignment', name: 'Penugasan Wilayah', icon: Database,
+        },
+        {
+          id: 'export', name: 'Laporan & Ekspor', icon: FileSpreadsheet,
+        },
+        {
+          id: 'issues', name: 'Daftar Kendala', icon: AlertTriangle,
+        },
+      ];
+
+    case 'KORWIL':
+      return [
+        {
+          id: 'dashboard', name: 'Dashboard Korwil', icon: LayoutDashboard,
+        },
+        {
+          id: 'export', name: 'Laporan & Ekspor', icon: FileSpreadsheet,
+        },
+        {
+          id: 'issues', name: 'Pantau Kendala', icon: AlertTriangle,
+        },
+      ];
+
+    case 'PML':
+      return [
+        {
+          id: 'dashboard', name: 'Dashboard PML', icon: LayoutDashboard,
+        },
+        {
+          id: 'export', name: 'Laporan & Ekspor', icon: FileSpreadsheet,
+        },
+      ];
+
+    case 'PPL':
+    default:
+      return [
+        {
+          id: 'dashboard', name: 'Beban Tugas & Riwayat', icon: LayoutDashboard,
+        },
+      ];
+  }
+};
 
   // ─────────────────────────────────────────────────────────────────────────
   // SCREENS
@@ -420,6 +467,12 @@ export default function App() {
             switch (currentUser.role) {
 
               case 'ADMIN':
+                if (activeTab === 'assignment')
+                  return (
+                  <AssignmentManagement
+                  readOnly={false}
+                  />
+                );
                 if (activeTab === 'plots') return (
                   <PlotManagement
                     plots={plots}
@@ -450,7 +503,47 @@ export default function App() {
                   />
                 );
 
-              case 'REGIONAL_COORDINATOR':
+              case 'SUPERVISOR':
+                
+              if (activeTab === 'assignment')
+                return (
+                <AssignmentManagement
+                readOnly={true}
+                />
+              );
+              
+              if (activeTab === 'export')
+                return (
+                <ReportExport
+                plots={plots}
+                submissions={submissions}
+                users={users}
+                />
+              );
+              
+              if (activeTab === 'issues')
+                return (
+                <IssueMonitoring
+                issues={issues}
+                currentUser={currentUser}
+                onUpdateIssueStatus={handleUpdateIssueStatus}
+                />
+              );
+              return (
+                <AdminDashboard
+                users={users}
+                plots={plots}
+                submissions={submissions}
+                issues={issues}
+                selectedDate={selectedDate}
+                onAddUser={() => {}}
+                onDeleteUser={() => {}}
+                onUpdateIssueStatus={handleUpdateIssueStatus}
+                readOnly={true}
+                />
+              );
+
+              case 'KORWIL':
                 if (activeTab === 'export') return <ReportExport plots={plots} submissions={submissions} users={users} />;
                 if (activeTab === 'issues') return (
                   <IssueMonitoring
