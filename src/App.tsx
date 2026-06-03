@@ -225,7 +225,7 @@ export default function App() {
     switch (role) {
       case 'ADMIN':                return 'ADMIN';
       case 'SUPERVISOR':           return 'SUPERVISOR'
-      case 'REGIONAL_COORDINATOR': return 'KORWIL';
+      case 'KORWIL': return 'KORWIL';
       case 'PML':                  return 'PML (PENGAWAS)';
       case 'PPL':                  return 'PPL (PENCACAH)';
       default:                     return role;

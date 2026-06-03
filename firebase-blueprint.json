@@ -19,7 +19,7 @@
         },
         "role": {
           "type": "string",
-          "enum": ["ADMIN", "REGIONAL_COORDINATOR", "PML", "PPL"],
+          "enum": ["ADMIN", "SUPERVISOR", "KORWIL", "PML", "PPL"],
           "description": "System access privilege role"
         },
         "district": {

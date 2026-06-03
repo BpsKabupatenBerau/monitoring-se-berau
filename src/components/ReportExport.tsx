@@ -121,7 +121,7 @@ export default function ReportExport({
   // Filter lists for export tool dropdowns
   const pplList = users.filter(u => u.role === 'PPL');
   const pmlList = users.filter(u => u.role === 'PML');
-  const regCoList = users.filter(u => u.role === 'REGIONAL_COORDINATOR');
+  const regCoList = users.filter(u => u.role === 'KORWIL');
 
   // Search filter for SLS Registry grid
   const filteredPlots = plotsWithDbStatus.filter(p => {
@@ -188,7 +188,7 @@ export default function ReportExport({
 
     const ppl = users.find(u => u.id === sub.pplId);
     const pml = users.find(u => u.id === plot.assignedPmlId);
-    const regCo = users.find(u => u.role === 'REGIONAL_COORDINATOR' && u.district === plot.district);
+    const regCo = users.find(u => u.role === 'KORWIL' && u.district === plot.district);
 
     // Date
     if (filterDate && sub.date !== filterDate) return false;

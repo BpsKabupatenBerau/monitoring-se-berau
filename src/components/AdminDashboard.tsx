@@ -501,7 +501,7 @@ export default function AdminDashboard({
                   onChange={(e) => setRole(e.target.value as UserRole)}
                   className="w-full bg-slate-50 border border-slate-200 outline-none p-2.5 rounded-lg focus:bg-white text-xs"
                 >
-                  <option value="REGIONAL_COORDINATOR">KORWIL</option>
+                  <option value="KORWIL">KORWIL</option>
                   <option value="PML">PML (Supervisor Lapangan)</option>
                   <option value="PPL">PPL (Pencacah Lapangan)</option>
                   <option value="ADMIN">ADMINISTRATOR (BPS Berau)</option>
@@ -548,7 +548,7 @@ export default function AdminDashboard({
                     className="w-full bg-slate-50 border border-slate-200 outline-none p-2.5 rounded-lg focus:bg-white text-xs"
                   >
                     <option value="">-- Pilih Regional Coordinator --</option>
-                    {users.filter(u => u.role === 'REGIONAL_COORDINATOR').map(u => (
+                    {users.filter(u => u.role === 'KORWIL').map(u => (
                       <option key={u.id} value={u.id}>{u.name} (Kec. {u.district})</option>
                     ))}
                   </select>

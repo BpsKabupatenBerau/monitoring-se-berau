@@ -21,7 +21,7 @@ import {
 
 interface LandingPageProps {
   onEnterPortal: () => void;
-  onEnterQuickDemo: (role: 'ADMIN' | 'REGIONAL_COORDINATOR' | 'PML' | 'PPL') => void;
+  onEnterQuickDemo: (role: 'ADMIN' | 'KORWIL' | 'PML' | 'PPL') => void;
 }
 
 export default function LandingPage({ onEnterPortal, onEnterQuickDemo }: LandingPageProps) {
