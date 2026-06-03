@@ -224,8 +224,8 @@ export default function App() {
   const getRoleLabel = (role: string) => {
     switch (role) {
       case 'ADMIN':                return 'ADMIN';
-      case 'SUPERVISOR':           return 'SUPERVISOR'
-      case 'KORWIL': return 'KORWIL';
+      case 'SUPERVISOR':           return 'SUPERVISOR';
+      case 'KORWIL':               return 'KORWIL';
       case 'PML':                  return 'PML (PENGAWAS)';
       case 'PPL':                  return 'PPL (PENCACAH)';
       default:                     return role;
