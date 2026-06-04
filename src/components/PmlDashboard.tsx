@@ -59,18 +59,19 @@ export default function PmlDashboard({
   onUpdateSubmission,
   onDeleteSubmission
 }: PmlDashboardProps) {
-  // Find PPLs supervised by this PML
-  const myPpls = users.filter(u => u.role === 'PPL' && myPplIds.includes(u.id));
-
   // Find plots supervised by this PML
   const mySupervisedPlots = plots.filter(p => p.assignedPmlId === currentUser.id);
+  const myDistricts = [...new Set(mySupervisedPlots.map(p => p.district))];
 
   // Submissions under this supervisor
-  const myPplIds = myPpls.map(p => p.id);
+  const myPplIds = [...new Set(mySupervisedPlots.map(p => p.assignedPplId).filter(Boolean))];
   const supervisedSubmissions = submissions.filter(s => myPplIds.includes(s.pplId));
   const submissionsToday = supervisedSubmissions.filter(s => s.date === selectedDate);
   const operationalToday = getOperationalToday();
   const canMutateSubmission = (submission: DailySubmission) => submission.date === operationalToday;
+
+  // Find PPLs supervised by this PML
+  const myPpls = users.filter(u => u.role === 'PPL' && myPplIds.includes(u.id));
 
   // Issues reported by supervised PPLs
   const supervisedIssues = issues.filter(i => myPplIds.includes(i.pplId));

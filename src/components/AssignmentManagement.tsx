@@ -26,6 +26,8 @@ export default function AssignmentManagement({
   const [filterKecamatan, setFilterKecamatan] = useState('');
   const [filterDesa, setFilterDesa] = useState('');
   const [search, setSearch] = useState('');
+  const [page, setPage] = useState(1);
+  const PAGE_SIZE = 25;
 
   useEffect(() => {
     loadData();
@@ -80,6 +82,27 @@ export default function AssignmentManagement({
     });
   }, [rows, filterKecamatan, filterDesa, search]);
 
+  const desaOptions = useMemo(() => {
+    let data = rows;
+    if (filterKecamatan) {
+      data = data.filter(
+        r => r.kecamatan === filterKecamatan
+      );
+    }
+
+    return [...new Set(data.map(r => r.desa))].sort();
+  }, [rows, filterKecamatan]);
+
+  const totalPages = Math.ceil(filteredRows.length / PAGE_SIZE);
+  const paginatedRows = filteredRows.slice(
+    (page - 1) * PAGE_SIZE,
+    page * PAGE_SIZE
+  );
+
+  useEffect(() => {
+    setPage(1);
+  }, [filterKecamatan, filterDesa, search]);
+
   async function handleAssign() {
     if (readOnly) return;
 
@@ -109,6 +132,57 @@ export default function AssignmentManagement({
         Penugasan Wilayah
       </h2>
 
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+
+      <div className="geo-card p-3">
+        <div className="text-xs">
+          Total SubSLS
+        </div>
+        <div className="text-xl font-bold">
+          {rows.length}
+        </div>
+      </div>
+
+
+      <div className="geo-card p-3">
+        <div className="text-xs">
+          Hasil Filter
+        </div>
+        <div className="text-xl font-bold">
+          {filteredRows.length}
+        </div>
+      </div>
+
+
+      <div className="geo-card p-3">
+        <div className="text-xs">
+          Dipilih
+        </div>
+        <div className="text-xl font-bold">
+          {selectedRows.length}
+        </div>
+      </div>
+
+
+      <div className="geo-card p-3">
+        <div className="text-xs">
+          Sudah Assigned
+        </div>
+        <div className="text-xl font-bold">
+          {
+            rows.filter(
+              r =>
+                r.korwil_id ||
+                r.pml_id ||
+                r.ppl_id
+            ).length
+          }
+        </div>
+      </div>
+
+
+    </div>
+
       {/* Filters */}
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
@@ -122,7 +196,9 @@ export default function AssignmentManagement({
 
         <select
           value={filterKecamatan}
-          onChange={(e) => setFilterKecamatan(e.target.value)}
+          onChange={(e) => {setFilterKecamatan(e.target.value);
+              setFilterDesa('');
+          }} 
         >
           <option value="">Semua Kecamatan</option>
 
@@ -141,13 +217,11 @@ export default function AssignmentManagement({
         >
           <option value="">Semua Desa</option>
 
-          {[...new Set(rows.map(r => r.desa))]
-            .sort()
-            .map(desa => (
-              <option key={desa}>
-                {desa}
-              </option>
-            ))}
+          {desaOptions.map(desa => (
+            <option key={desa}>
+              {desa}
+            </option>
+          ))}
         </select>
 
       </div>
@@ -160,19 +234,61 @@ export default function AssignmentManagement({
 
           <thead>
             <tr>
-              <th></th>
-              <th>IDSUBSLS</th>
-              <th>Kecamatan</th>
-              <th>Desa</th>
-              <th>Korwil</th>
-              <th>PML</th>
-              <th>PPL</th>
+              <th>
+                <input
+                  type="checkbox"
+                  checked={
+                    paginatedRows.length > 0 &&
+                    paginatedRows.every(
+                      row =>
+                        selectedRows.includes(
+                          row.id
+                        )
+                    )
+                  }
+                  onChange={(e) => {
+
+
+                    const pageIds =
+                      paginatedRows.map(
+                        r => r.id
+                      );
+
+
+                    if (e.target.checked) {
+
+
+                      setSelectedRows(prev => [
+                        ...new Set([
+                          ...prev,
+                          ...pageIds
+                        ])
+                      ]);
+
+
+                    } else {
+
+
+                      setSelectedRows(prev =>
+                        prev.filter(
+                          id =>
+                            !pageIds.includes(id)
+                        )
+                      );
+
+
+                    }
+
+
+                  }}
+                />
+              </th>
             </tr>
           </thead>
 
           <tbody>
 
-            {filteredRows.map(row => (
+            {paginatedRows.map(row => (
 
               <tr key={row.id}>
 
@@ -221,6 +337,103 @@ export default function AssignmentManagement({
           </tbody>
 
         </table>
+
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+
+        <div className="geo-card p-3">
+          <div className="text-xs">
+            Total SubSLS
+          </div>
+          <div className="text-xl font-bold">
+            {rows.length}
+          </div>
+        </div>
+
+        <div className="geo-card p-3">
+          <div className="text-xs">
+            Hasil Filter
+          </div>
+          <div className="text-xl font-bold">
+            {filteredRows.length}
+          </div>
+        </div>
+
+        <div className="geo-card p-3">
+          <div className="text-xs">
+            Dipilih
+          </div>
+          <div className="text-xl font-bold">
+            {selectedRows.length}
+          </div>
+        </div>
+
+        <div className="geo-card p-3">
+          <div className="text-xs">
+            Sudah Assigned
+          </div>
+          <div className="text-xl font-bold">
+            {
+              rows.filter(
+                r =>
+                  r.korwil_id ||
+                  r.pml_id ||
+                  r.ppl_id
+              ).length
+            }
+          </div>
+        </div>
+
+      </div><div className="flex items-center justify-between p-3 border-t">
+
+        <div className="text-sm">
+
+          Menampilkan
+          {' '}
+
+          {(page - 1) * PAGE_SIZE + 1}
+
+          -
+
+          {Math.min(
+            page * PAGE_SIZE,
+            filteredRows.length
+          )}
+
+          dari
+
+          {' '}
+
+          {filteredRows.length}
+        </div>
+
+        <div className="flex gap-2">
+          <button
+            disabled={page === 1}
+            onClick={() =>
+              setPage(p => p - 1)
+            }
+            className="geo-button"
+          >
+            Prev
+          </button>
+
+          <div className="px-3 py-2">
+            {page} / {totalPages}
+          </div>
+
+          <button
+            disabled={
+              page === totalPages
+            }
+            onClick={() =>
+              setPage(p => p + 1)
+            }
+            className="geo-button"
+          >
+            Next
+          </button>
+        </div>
+      </div>
 
       </div>
 

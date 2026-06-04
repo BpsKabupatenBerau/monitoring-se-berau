@@ -25,6 +25,12 @@ interface LandingPageProps {
 }
 
 export default function LandingPage({ onEnterPortal, onEnterQuickDemo }: LandingPageProps) {
+
+  const SHOW_FEATURES_SECTION = false; // Set to true to show the features section
+  const SHOW_STATS = false; // Set to true to show the stats strip
+  const SHOW_HERO_RIGHT_CARD = false; // Set to true to show the hero right card
+  const SHOW_ACTION = false; // Set to true to show the quick demo action buttons
+
   return (
     <div className="min-h-screen bg-slate-50 font-sans text-slate-800 flex flex-col antialiased border-[4px] md:border-[10px] border-slate-900">
       
@@ -92,6 +98,7 @@ export default function LandingPage({ onEnterPortal, onEnterQuickDemo }: Landing
           </div>
 
           {/* Hero Right Card */}
+          {SHOW_HERO_RIGHT_CARD && (
           <div className="lg:col-span-5">
             <div className="bg-slate-800 border-4 border-amber-400 p-6 shadow-[8px_8px_0px_0px_rgba(251,191,36,1)] rounded-none space-y-4">
               <div className="flex items-center justify-between border-b-2 border-slate-700 pb-3">
@@ -128,10 +135,13 @@ export default function LandingPage({ onEnterPortal, onEnterQuickDemo }: Landing
               </div>
             </div>
           </div>
+          )}
         </div>
       </section>
+      
 
       {/* FEATURES SECTION */}
+      {SHOW_FEATURES_SECTION && (
       <section id="features" className="py-16 md:py-20 bg-white border-b-4 border-slate-900 px-6">
         <div className="max-w-6xl mx-auto space-y-12">
           
@@ -220,8 +230,10 @@ export default function LandingPage({ onEnterPortal, onEnterQuickDemo }: Landing
           </div>
         </div>
       </section>
+      )}
 
       {/* STATS STRIP */}
+      {SHOW_STATS && (
       <section className="bg-slate-900 border-b-4 border-amber-400 py-10 px-6">
         <div className="max-w-6xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-6 text-center text-white">
           {[
@@ -238,8 +250,10 @@ export default function LandingPage({ onEnterPortal, onEnterQuickDemo }: Landing
           ))}
         </div>
       </section>
+      )}
 
       {/* CALL TO ACTION */}
+      {SHOW_ACTION && (
       <section className="py-20 bg-slate-50 border-b-4 border-slate-900 px-6 text-center">
         <div className="max-w-3xl mx-auto space-y-6">
           <div className="inline-flex justify-center w-12 h-12 bg-amber-400 border-2 border-slate-900 items-center text-slate-950 text-xl font-bold">
@@ -262,11 +276,11 @@ export default function LandingPage({ onEnterPortal, onEnterQuickDemo }: Landing
           </div>
         </div>
       </section>
+      )}
 
       {/* FOOTER */}
       <footer className="bg-slate-900 text-slate-400 text-[10px] py-6 text-center border-t border-slate-800 space-y-1 font-mono">
-        <p>© 2026 Badan Pusat Statistik (BPS) Kabupaten Berau. Hak Cipta Dilindungi Undang-Undang.</p>
-        <p className="text-slate-500">Sistem Monitoring Terintegrasi SE2026 · Powered by Supabase PostgreSQL</p>
+        <p>© 2026 Badan Pusat Statistik (BPS) Kabupaten Berau</p>
       </footer>
 
     </div>

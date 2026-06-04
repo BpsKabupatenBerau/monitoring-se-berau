@@ -107,15 +107,13 @@ interface PenggunaRow {
 
 function rowToUser(row: PenggunaRow): User {
   return {
-    id:       row.legacy_id ?? row.id,
-    username: row.username ?? row.email?.split('@')[0] ?? row.legacy_id ?? row.id,
+    id:       row.id,
+    username: row.username ?? row.email?.split('@')[0] ?? row.id,
     name:     row.nama_lengkap,
     role:     mapPeran(row.peran),
     email:    row.email ?? undefined,
-    district: row.kecamatan ?? undefined,
-    pmlId:    row.pml_legacy_id ?? undefined,
-    regCoId:  row.korwil_legacy_id ?? undefined,
-  };
+    district: row.kecamatan ?? undefined
+    };
 }
 
 export async function fetchUsers(): Promise<User[]> {
@@ -396,30 +394,66 @@ export async function fetchSubmissions(): Promise<DailySubmission[]> {
   return (data as LaporanHarianRow[]).map(rowToSubmission);
 }
 
-export async function createSubmission(sub: Omit<DailySubmission, 'id' | 'timestamp'>): Promise<DailySubmission | null> {
+export async function createSubmission(
+  sub: Omit<DailySubmission, 'id' | 'timestamp'>
+): Promise<DailySubmission | null> {
+
+  console.log("=== CREATE SUBMISSION");
+  const authUser = await supabase.auth.getUser();
+  console.log("Auth User:", authUser.data.user?.id);
+  console.log("Payload: ", {plotId: sub.plotId, pplId: sub.pplId, submittedByPmlId: sub.submittedByPmlId, date: sub.date, status: sub.status});
+
   const legacyId = `sub_${Date.now()}`;
   const timestamp = new Date().toISOString();
+
+  // ambil assignment plot
+  const { data: plotData, error: plotError } = await supabase
+    .from('plot_wilayah')
+    .select(`
+      pml_id,
+      ppl_id,
+      korwil_id
+    `)
+    .eq('idsubsls', sub.plotId)
+    .single();
+
+  if (plotError || !plotData) {
+    console.error('[createSubmission] plot lookup failed', plotError);
+    return null;
+  }
 
   const { data, error } = await supabase
     .from('laporan_harian')
     .insert({
-      legacy_id:              legacyId,
-      tanggal_laporan:        sub.date,
-      ppl_legacy_id:          sub.pplId,
-      pml_legacy_id:          sub.submittedByPmlId ?? null,
-      plot_legacy_id:         sub.plotId,
-      status_laporan:         mapStatusLaporanToDb(sub.status),
-      capaian_harian:         sub.completedUnits,
-      ada_kendala:            sub.issueIndicator,
-      deskripsi_kendala:      sub.issueDescription || null,
-      dibuat_oleh_legacy_id:  sub.submittedByPmlId ?? null,
-      dibuat_pada:            timestamp,
+      legacy_id: legacyId,
+
+      tanggal_laporan: sub.date,
+
+      pml_id: plotData.pml_id,
+      ppl_id: plotData.ppl_id,
+      korwil_id: plotData.korwil_id,
+
+      dibuat_oleh: sub.submittedByPmlId,
+
+      pml_legacy_id: plotData.pml_id,
+      ppl_legacy_id: plotData.ppl_id,
+      korwil_legacy_id: plotData.korwil_id,
+
+      plot_legacy_id: sub.plotId,
+
+      status_laporan: mapStatusLaporanToDb(sub.status),
+      capaian_harian: sub.completedUnits,
+
+      ada_kendala: sub.issueIndicator,
+      deskripsi_kendala: sub.issueDescription || null,
+
+      dibuat_pada: timestamp,
     })
     .select()
     .single();
 
   if (error) {
-    console.error('[createSubmission]', error.message);
+    console.error('[createSubmission]', error);
     return null;
   }
 

@@ -34,18 +34,24 @@ export default function PplDashboard({
   selectedDate,
   users
 }: PplDashboardProps) {
-  // Filter plots assigned to this PPL
+  // Semua plot milik PPL ini
   const myPlots = plots.filter(p => p.assignedPplId === currentUser.id);
-
-  // Filter submissions made for this PPL
+  
+  // Semua submission milik PPL ini
   const mySubmissions = submissions.filter(s => s.pplId === currentUser.id);
-
-  // Submissions for the today date
   const mySubmissionsToday = mySubmissions.filter(s => s.date === selectedDate);
-
-  // Find their PML supervisor
-  const myPml = users.find(u => u.id === myPmlIds[0]);
-  const myPmlName = myPml ? myPml.name : currentUser.pmlId || 'Belum Ditentukan';
+  // Kecamatan tugas
+  const myDistricts = [...new Set(myPlots.map(p => p.district))];
+  
+  // Cari PML dari assignment plot
+  const myPmlIds = [...new Set(myPlots.map(p => p.assignedPmlId).filter(Boolean))];
+  console.log('Current User:', currentUser);
+  console.log('Users Details:', users.map(u => ({ id: u.id, name: u.name, role: u.role })));
+  console.log('My Plots:', myPlots);
+  console.log('My PML IDs:', myPmlIds);
+  console.log('Users:', users);
+  const myPml = users.find(u => u.role === 'PML' && myPmlIds.includes(u.id));
+  const myPmlName = myPml?.name ??'Belum Ditentukan';
 
   // Helper to get submission status for a plot as of selectedDate
   const getPlotStatusToday = (plotId: string): { status: MonitoringStatus | 'NOT_REPORTED'; units: number; hasIssue: boolean } => {
@@ -120,9 +126,9 @@ export default function PplDashboard({
             </p>
             <p className="text-xs leading-relaxed text-slate-800 font-medium font-sans">
               Sesuai prosedur baru SE2026, PPL tidak melakukan input data monitoring harian secara langsung ke aplikasi. 
-              Harap laporkan progress harian serta kendala Anda kepada PML Supervisor Anda:{" "}
-              <strong className="text-slate-950 font-black underline">{myPmlName} (PML ID: {currentUser.pmlId || 'N/A'})</strong>.
-              Supervisor PML Anda yang bertanggung jawab menginput dan memverifikasi data monitoring Anda di sistem.
+              Harap laporkan progress harian serta kendala Anda kepada PML Anda:{" "}
+              <strong className="text-slate-950 font-black underline">{myPmlName}</strong>.
+              PML Anda yang bertanggung jawab menginput dan memverifikasi data monitoring Anda di sistem.
             </p>
           </div>
         </div>
@@ -187,7 +193,7 @@ export default function PplDashboard({
                         <h4 className="font-black text-slate-900 text-xs sm:text-sm uppercase font-display tracking-tight">{plot.village}</h4>
                       </div>
                       <p className="text-[11.5px] text-slate-500 font-mono">
-                        SLS: {plot.sls} | ID: {plot.id}
+                        SLS: {plot.sls} | IdSubSLS: {plot.idSubsls}
                       </p>
                     </div>
 
@@ -222,13 +228,13 @@ export default function PplDashboard({
           <div className="max-h-[380px] overflow-y-auto space-y-3 pr-1">
             {mySubmissions.length === 0 ? (
               <div className="text-center py-10 border-2 border-dashed border-slate-300 rounded-none">
-                <p className="text-slate-550 font-mono text-xs">Belum ada laporan yang diinputkan supervisor.</p>
+                <p className="text-slate-550 font-mono text-xs">Belum ada laporan yang diinputkan PML.</p>
               </div>
             ) : (
               mySubmissions.map(sub => {
                 const plot = plots.find(p => p.id === sub.plotId);
                 const recordedByPmlUser = users.find(u => u.id === sub.submittedByPmlId);
-                const pmlNameLabel = recordedByPmlUser ? recordedByPmlUser.name : sub.submittedByPmlId || 'PML Supervisor';
+                const pmlNameLabel = recordedByPmlUser ? recordedByPmlUser.name : sub.submittedByPmlId || 'PML';
 
                 return (
                   <div key={sub.id} className="p-3 bg-white border-2 border-slate-900 rounded-none space-y-2.5 shadow-[1.5px_1.5px_0px_0px_#0f172a]">
