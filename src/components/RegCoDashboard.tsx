@@ -41,6 +41,7 @@ export default function RegCoDashboard({
 }: RegCoDashboardProps) {
   const myPlots = plots.filter(p => p.assignedKorwilId === currentUser.id);
   const myDistricts = [...new Set(myPlots.map(p => p.district))];
+  console.log('myDistricts', myDistricts);
 
   // Find PMLs assigned to this district
   const myPmlIds = [...new Set(myPlots.map(p => p.assignedPmlId).filter(Boolean))];
