@@ -48,7 +48,6 @@ export default function RegCoDashboard({
   const myPmls = users.filter(u =>u.role === 'PML' && myPmlIds.includes(u.id));
 
   // Find PPLs assigned to this district
-  const mySupervisedPlots = plots.filter(p => p.assignedPmlId === currentUser.id);
   const myPplIds = [...new Set(myPlots.map(p => p.assignedPplId).filter(Boolean))];
   const myPpls = users.filter(u => u.role === 'PPL' && myPplIds.includes(u.id));
 
@@ -111,7 +110,7 @@ export default function RegCoDashboard({
             PJ Wilayah / Regional Coordinator
           </span>
           <h1 className="text-2xl font-display font-black mt-2 text-white uppercase leading-tight">
-            Wilayah Pengawasan: Kecamatan {myRegion}
+            Wilayah Pengawasan: Kecamatan {myDistricts.length > 0 ? myDistricts.join(', ') : 'Belum Ada Penugasan'}
           </h1>
           <p className="text-slate-300 text-xs mt-1">
             Koordinator: <span className="font-semibold text-white">{currentUser.name}</span>. Meninjau secara real-time kesiapan data dan laporan harian semua pengawas (PML) dan pencacah (PPL).
@@ -163,7 +162,7 @@ export default function RegCoDashboard({
       {/* Progress Metric Box */}
       <div className="geo-card p-6 shadow-none flex flex-col md:flex-row md:items-center justify-between gap-6" id="region-progress-status-box">
         <div className="space-y-1 md:max-w-md w-full">
-          <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Status Pencapaian Kecamatan {myRegion}</p>
+          <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Status Pencapaian Kecamatan {myDistricts.join(', ')}</p>
           <h3 className="text-xl font-display font-black text-slate-900 uppercase">Progress Selesai: {progressPct}%</h3>
           <p className="text-xs text-slate-500 leading-relaxed font-semibold">
             Dari total <span className="font-bold text-slate-900">{totalRegionPlots} SLS</span> lokasi yang ditetapkan, pendatanaan di <span className="font-bold text-slate-900">{completedPlots} SLS</span> telah selesai dilaporkan (COMPLETED) oleh PPL.
@@ -211,7 +210,7 @@ export default function RegCoDashboard({
             </button>
 
             {myPmls.map(pml => {
-              const pmlPpls = myPpls.filter(p => p.pmlId === pml.id);
+              const pmlPpls = myPpls.filter(ppl => myPlots.some(plot => plot.assignedPmlId === pml.id && plot.assignedPplId === ppl.id));
               const pmlPplIds = pmlPpls.map(ppl => ppl.id);
               
               // Count reported today
@@ -286,7 +285,8 @@ export default function RegCoDashboard({
                 const totalUnits = pplSubmissions.reduce((acc, curr) => acc + curr.completedUnits, 0);
 
                 // Supervisor name
-                const supervisor = myPmls.find(p => p.id === ppl.pmlId);
+                const assignedPlot = myPlots.find( p => p.assignedPplId === ppl.id);
+                const supervisor = assignedPlot ? myPmls.find(p => p.id === assignedPlot.assignedPmlId): undefined;
 
                 return (
                   <div key={ppl.id} className="p-3 bg-slate-55 border border-slate-100/80 rounded-xl hover:bg-slate-50 hover:shadow-xs transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3">
@@ -322,7 +322,7 @@ export default function RegCoDashboard({
       <div className="bg-white rounded-2xl border border-slate-100 p-5 shadow-sm space-y-4">
         <div className="border-b border-slate-100 pb-3">
           <h2 className="font-display font-semibold text-slate-800 flex items-center gap-2">
-            <ShieldAlert size={18} className="text-rose-500 hover:rotate-12 transition-transform" /> Kendala Aktif di Kecamatan {myRegion}
+            <ShieldAlert size={18} className="text-rose-500 hover:rotate-12 transition-transform" /> Kendala Aktif di Kecamatan {myDistricts.join(', ')}
           </h2>
           <p className="text-[11px] text-slate-400 mt-0.5">Daftar issue lapangan yang dilaporkan oleh petugas agar diketahu oleh Korwil.</p>
         </div>
