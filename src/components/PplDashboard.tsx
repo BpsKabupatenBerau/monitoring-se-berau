@@ -35,7 +35,7 @@ export default function PplDashboard({
   users
 }: PplDashboardProps) {
   // Filter plots assigned to this PPL
-  const myPlots = plots.filter(v => v.assignedPplId === currentUser.id);
+  const myPlots = plots.filter(p => p.assignedPplId === currentUser.id);
 
   // Filter submissions made for this PPL
   const mySubmissions = submissions.filter(s => s.pplId === currentUser.id);
@@ -44,7 +44,7 @@ export default function PplDashboard({
   const mySubmissionsToday = mySubmissions.filter(s => s.date === selectedDate);
 
   // Find their PML supervisor
-  const myPml = users.find(u => u.id === currentUser.pmlId);
+  const myPml = users.find(u => u.id === myPmlIds[0]);
   const myPmlName = myPml ? myPml.name : currentUser.pmlId || 'Belum Ditentukan';
 
   // Helper to get submission status for a plot as of selectedDate
@@ -111,7 +111,7 @@ export default function PplDashboard({
             Hallo, {currentUser.name}
           </h1>
           <p className="text-slate-700 text-xs mt-2 font-semibold">
-            Wilayah Tugas: Kecamatan <span className="font-extrabold text-slate-900">{currentUser.district}</span>.
+            Wilayah Tugas: Kecamatan <span className="font-extrabold text-slate-900">{myDistricts.join(', ')}</span>.
           </p>
 
           <div className="mt-4 p-4.5 bg-amber-50 border-2 border-slate-900 rounded-none text-slate-900 space-y-1.5 shadow-[2px_2px_0px_0px_#0f172a]">

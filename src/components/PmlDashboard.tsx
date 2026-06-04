@@ -60,7 +60,7 @@ export default function PmlDashboard({
   onDeleteSubmission
 }: PmlDashboardProps) {
   // Find PPLs supervised by this PML
-  const myPpls = users.filter(u => u.role === 'PPL' && u.pmlId === currentUser.id);
+  const myPpls = users.filter(u => u.role === 'PPL' && myPplIds.includes(u.id));
 
   // Find plots supervised by this PML
   const mySupervisedPlots = plots.filter(p => p.assignedPmlId === currentUser.id);
@@ -299,7 +299,7 @@ export default function PmlDashboard({
             Supervisor: {currentUser.name}
           </h1>
           <p className="text-slate-605 text-xs mt-1.5 font-medium leading-normal">
-            Memonitor kinerja <span className="font-extrabold text-slate-900">{myPpls.length} PPL</span> di Kecamatan <span className="font-extrabold text-slate-900">{currentUser.district}</span>.
+            Memonitor kinerja <span className="font-extrabold text-slate-900">{myPpls.length} PPL</span> di Kecamatan <span className="font-extrabold text-slate-900">{myDistricts.join(', ')}</span>.
             Anda bertanggung jawab mencatatkan laporan kemajuan harian tim Anda.
           </p>
         </div>

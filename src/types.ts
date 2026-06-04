@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-export type UserRole = 'ADMIN' | 'KORWIL' | 'PML' | 'PPL';
+export type UserRole = 'ADMIN' | 'SUPERVISOR' |'KORWIL' | 'PML' | 'PPL';
 
 export interface User {
   id: string;
@@ -26,6 +26,7 @@ export interface Plot {
   subSls: string;          // Sub-SLS (e.g. RT 01, RT 02)
   namaSls?: string;        // Human-readable SLS name
   targetPrelist?: number;  // Target prelist count
+  assignedKorwilId: string; 
   assignedPplId: string;   // Derived from PPL assignment where available
   assignedPmlId: string;   // Derived from PML assignment where available
 }

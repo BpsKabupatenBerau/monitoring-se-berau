@@ -230,7 +230,7 @@ export async function deleteUser(legacyId: string): Promise<void> {
 // ─────────────────────────────────────────────────────────────────────────────
 
 interface PlotWilayahRow {
-  id: string;              // UUID
+  id: string;
   legacy_id: string | null;
   idsubsls: string;
   kecamatan: string;
@@ -239,9 +239,9 @@ interface PlotWilayahRow {
   sub_sls: string | null;
   nama_sls?: string | null;
   target_prelist?: number | null;
-  pml_legacy_id: string | null;
-  ppl_legacy_id: string | null;
-  korwil_legacy_id: string | null;
+  korwil_id: string | null;
+  pml_id: string | null;
+  ppl_id: string | null;
   aktif: boolean;
   catatan: string | null;
   created_at: string;
@@ -250,16 +250,17 @@ interface PlotWilayahRow {
 
 function rowToPlot(row: PlotWilayahRow): Plot {
   return {
-    id:             row.legacy_id ?? row.idsubsls ?? row.id,
-    idSubsls:       row.idsubsls,
-    district:       row.kecamatan,
-    village:        row.desa,
-    sls:            row.sls ?? '',
-    subSls:         row.sub_sls ?? '',
-    namaSls:        row.nama_sls ?? undefined,
-    targetPrelist:  row.target_prelist ?? undefined,
-    assignedPplId:  row.ppl_legacy_id ?? '',
-    assignedPmlId:  row.pml_legacy_id ?? '',
+    id: row.legacy_id ?? row.idsubsls ?? row.id,
+    idSubsls: row.idsubsls,
+    district: row.kecamatan,
+    village: row.desa,
+    sls: row.sls ?? '',
+    subSls: row.sub_sls ?? '',
+    namaSls: row.nama_sls ?? undefined,
+    targetPrelist: row.target_prelist ?? undefined,
+    assignedKorwilId: row.korwil_id ?? '',
+    assignedPplId: row.ppl_id ?? '',
+    assignedPmlId: row.pml_id ?? '',
   };
 }
 
@@ -267,8 +268,8 @@ export async function fetchPlots(): Promise<Plot[]> {
   const { data, error } = await supabase
     .from('plot_wilayah')
     .select('*')
-    .order('legacy_id', { ascending: true });
-
+    .order('idsubsls')
+    .range(0,2000);
   if (error) {
     console.error('[fetchPlots]', error.message);
     return [];
@@ -841,9 +842,9 @@ export async function getPplList() {
 
 export async function bulkAssignPlots(
   plotIds: string[],
-  korwilId: string | null,
-  pmlId: string | null,
-  pplId: string | null
+  korwilId: string,
+  pmlId: string,
+  pplId: string
 ) {
   const { error } = await supabase
     .from('plot_wilayah')
@@ -851,6 +852,11 @@ export async function bulkAssignPlots(
       korwil_id: korwilId,
       pml_id: pmlId,
       ppl_id: pplId,
+
+      korwil_legacy_id: korwilId,
+      pml_legacy_id: pmlId,
+      ppl_legacy_id: pplId,
+
       updated_at: new Date().toISOString(),
     })
     .in('id', plotIds);

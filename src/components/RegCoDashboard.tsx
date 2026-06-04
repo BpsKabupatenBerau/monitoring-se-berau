@@ -39,19 +39,20 @@ export default function RegCoDashboard({
   issues,
   selectedDate
 }: RegCoDashboardProps) {
-  // Assigned Kecamatan for this coordinator (e.g., Kelay)
-  const myRegion = currentUser.district || 'Kelay';
+  const myPlots = plots.filter(p => p.assignedKorwilId === currentUser.id);
+  const myDistricts = [...new Set(myPlots.map(p => p.district))];
 
   // Find PMLs assigned to this district
-  const myPmls = users.filter(u => u.role === 'PML' && u.district === myRegion);
-  const myPmlIds = myPmls.map(p => p.id);
+  const myPmlIds = [...new Set(myPlots.map(p => p.assignedPmlId).filter(Boolean))];
+  const myPmls = users.filter(u =>u.role === 'PML' && myPmlIds.includes(u.id));
 
   // Find PPLs assigned to this district
-  const myPpls = users.filter(u => u.role === 'PPL' && u.district === myRegion);
-  const myPplIds = myPpls.map(p => p.id);
+  const mySupervisedPlots = plots.filter(p => p.assignedPmlId === currentUser.id);
+  const myPplIds = [...new Set(myPlots.map(p => p.assignedPplId).filter(Boolean))];
+  const myPpls = users.filter(u => u.role === 'PPL' && myPplIds.includes(u.id));
 
   // Filter plots within this district
-  const myRegionPlots = plots.filter(p => p.district === myRegion);
+  const myRegionPlots = myPlots;
   const totalRegionPlots = myRegionPlots.length;
 
   // Filter submissions in this district
@@ -89,8 +90,15 @@ export default function RegCoDashboard({
   const [selectedPmlId, setSelectedPmlId] = useState<string | null>(null);
 
   // Find PPLs assigned to specific PML (for filter/drill-down)
-  const filteredPplsByPml = selectedPmlId 
-    ? myPpls.filter(ppl => ppl.pmlId === selectedPmlId)
+  const filteredPplsByPml =
+  selectedPmlId
+    ? myPpls.filter(ppl =>
+        myPlots.some(
+          plot =>
+            plot.assignedPmlId === selectedPmlId &&
+            plot.assignedPplId === ppl.id
+        )
+      )
     : myPpls;
 
   return (
