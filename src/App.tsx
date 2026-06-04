@@ -434,8 +434,8 @@ export default function App() {
             <div className="border-t-2 border-slate-900 pt-2" />
             <div className="text-[11px] text-slate-850 font-mono space-y-1">
               <div>ID: <span className="font-bold text-slate-900">{currentUser.id}</span></div>
-              {myDistricts.join(', ') && (
-                <div>Kecamatan: <span className="font-bold text-slate-900">{myDistricts.join(', ')}</span></div>
+              {currentUser.assignedDistricts && currentUser.assignedDistricts.length > 0 && (
+                <div>Kecamatan: <span className="font-bold text-slate-900">{currentUser.assignedDistricts.join(', ')}</span></div>
               )}
             </div>
           </div>

@@ -58,16 +58,35 @@ export default function AdminDashboard({
   const completedPlotsCount = plots.filter(plot => 
     submissions.some(s => s.plotId === plot.id && s.status === 'COMPLETED')
   ).length;
-
   const totalProgressPercentage = totalPlotsCount > 0 
     ? Math.round((completedPlotsCount / totalPlotsCount) * 1000) / 10 
     : 0;
 
-  // District wise summarizes
+  // Debug: Log all users to see what district values they have
+  React.useEffect(() => {
+    console.log('[AdminDashboard] All users:', users.map(u => ({ 
+      id: u.id, 
+      name: u.name, 
+      role: u.role, 
+      district: u.district 
+    })));
+  }, [users]);
+  // District wise summarizes - based on plots with assignments (assignedPplId or assignedPmlId or assignedKorwilId)
   const districtSummaries = berauDistricts.map(dist => {
     const distPlots = plots.filter(p => p.district === dist);
-    const distPpls = users.filter(u => u.role === 'PPL' && u.district === dist);
-    const distPmls = users.filter(u => u.role === 'PML' && u.district === dist);
+    
+    // Count plots that have any assignment (korwil, pml, or ppl)
+    const assignedPlots = distPlots.filter(p => p.assignedKorwilId || p.assignedPmlId || p.assignedPplId);
+    
+    // Get unique assigned PML/PPL IDs in this district
+    const assignedPmlIds = new Set(distPlots.map(p => p.assignedPmlId).filter(Boolean));
+    const assignedPplIds = new Set(distPlots.map(p => p.assignedPplId).filter(Boolean));
+    const assignedKorwilIds = new Set(distPlots.map(p => p.assignedKorwilId).filter(Boolean));
+    
+    // Debug: log if we have any assigned plots for this district
+    if (assignedPlots.length > 0) {
+      console.log(`[District: ${dist}] Assigned plots: ${assignedPlots.length}, PML IDs: ${assignedPmlIds.size}, PPL IDs: ${assignedPplIds.size}, KORWIL IDs: ${assignedKorwilIds.size}`);
+    }
     
     const reportedDistToday = distPlots.filter(plot => 
       submissions.some(s => s.plotId === plot.id && s.date === selectedDate)
@@ -82,7 +101,7 @@ export default function AdminDashboard({
       : 0;
 
     const openIssuesDist = issues.filter(i => 
-      i.status === 'OPEN' && distPpls.map(p => p.id).includes(i.pplId)
+      i.status === 'OPEN' && Array.from(assignedPplIds).includes(i.pplId)
     ).length;
 
     return {
@@ -91,10 +110,10 @@ export default function AdminDashboard({
       reportedToday: reportedDistToday,
       progressPct: progressDistPct,
       openIssues: openIssuesDist,
-      pplCount: distPpls.length,
-      pmlCount: distPmls.length
+      pplCount: assignedPplIds.size,
+      pmlCount: assignedPmlIds.size
     };
-  }).filter(sum => sum.totalPlots > 0); // show only configured
+  }).filter(sum => sum.totalPlots > 0 || sum.pplCount > 0 || sum.pmlCount > 0); // show districts with plots OR plot assignments
 
   // User management form state
   const [showUserModal, setShowUserModal] = useState(false);

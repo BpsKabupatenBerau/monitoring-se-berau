@@ -30,7 +30,11 @@ export default function PlotManagement({
   onUpdatePlot,
   onDeletePlot
 }: PlotManagementProps) {
+  const ITEMS_PER_PAGE = 20;
+  
+  const [currentPage, setCurrentPage] = useState(1);
   const [districtFilter, setDistrictFilter] = useState('');
+  const [villageFilter, setVillageFilter] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [showModal, setShowModal] = useState(false);
   const [editingPlotId, setEditingPlotId] = useState<string | null>(null);
@@ -89,8 +93,7 @@ export default function PlotManagement({
     }
 
     setIsSaving(true);
-    try {
-      const payload: Omit<Plot, 'id'> = {
+    try {      const payload: Omit<Plot, 'id'> = {
         idSubsls: idSubsls.trim(),
         district,
         village: village.trim(),
@@ -100,6 +103,7 @@ export default function PlotManagement({
         targetPrelist,
         assignedPplId: '',
         assignedPmlId: '',
+        assignedKorwilId: '',
       };
 
       if (editingPlotId) {
@@ -117,9 +121,15 @@ export default function PlotManagement({
       setIsSaving(false);
     }
   };
+  // Get unique villages for selected district
+  const uniqueVillages = districtFilter
+    ? [...new Set(plots.filter(p => p.district === districtFilter).map(p => p.village))]
+    : [];
 
+  // Filter plots by district, village, and search query
   const filteredPlots = plots.filter(plot => {
     const matchesDistrict = !districtFilter || plot.district === districtFilter;
+    const matchesVillage = !villageFilter || plot.village === villageFilter;
     const haystack = [
       plot.id,
       plot.idSubsls,
@@ -129,8 +139,23 @@ export default function PlotManagement({
       plot.subSls,
       plot.namaSls || '',
     ].join(' ').toLowerCase();
-    return matchesDistrict && (!searchQuery || haystack.includes(searchQuery.toLowerCase()));
+    return matchesDistrict && matchesVillage && (!searchQuery || haystack.includes(searchQuery.toLowerCase()));
   });
+
+  // Pagination
+  const totalPages = Math.ceil(filteredPlots.length / ITEMS_PER_PAGE);
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+  const paginatedPlots = filteredPlots.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+
+  // Reset to page 1 when filters change
+  React.useEffect(() => {
+    setCurrentPage(1);
+  }, [districtFilter, villageFilter, searchQuery]);
+
+  // Reset village filter when district changes
+  React.useEffect(() => {
+    setVillageFilter('');
+  }, [districtFilter]);
 
   return (
     <div className="space-y-6" id="plot-management-panel">
@@ -149,9 +174,7 @@ export default function PlotManagement({
         >
           <Plus size={14} /> Tambah Sub-SLS
         </button>
-      </div>
-
-      <div className="bg-slate-50 p-4 rounded-xl border border-slate-100/60 flex flex-col sm:flex-row items-center justify-between gap-4">
+      </div>      <div className="bg-slate-50 p-4 rounded-xl border border-slate-100/60 flex flex-col sm:flex-row items-center justify-between gap-4">
         <div className="flex flex-col sm:flex-row items-center gap-2.5 w-full sm:w-auto">
           <div className="flex items-center gap-2 w-full sm:w-auto">
             <Filter size={13} className="text-slate-400 shrink-0" />
@@ -167,6 +190,21 @@ export default function PlotManagement({
             </select>
           </div>
 
+          {districtFilter && (
+            <div className="flex items-center gap-2 w-full sm:w-auto">
+              <select
+                value={villageFilter}
+                onChange={(e) => setVillageFilter(e.target.value)}
+                className="bg-white border border-slate-200 outline-none text-xs px-2.5 py-1.5 rounded-lg w-full sm:w-44"
+              >
+                <option value="">-- Semua Desa --</option>
+                {uniqueVillages.sort().map(village => (
+                  <option key={village} value={village}>{village}</option>
+                ))}
+              </select>
+            </div>
+          )}
+
           <div className="relative w-full sm:w-auto">
             <input
               type="text"
@@ -177,10 +215,8 @@ export default function PlotManagement({
             />
             <Search size={12} className="absolute left-2.5 top-2.5 text-slate-400" />
           </div>
-        </div>
-
-        <span className="text-[11px] font-mono text-slate-400 shrink-0">
-          Showing {filteredPlots.length} of {plots.length} Sub-SLS
+        </div>        <span className="text-[11px] font-mono text-slate-400 shrink-0">
+          Showing {paginatedPlots.length} of {plots.length} Sub-SLS (Page {currentPage}/{totalPages})
         </span>
       </div>
 
@@ -198,9 +234,8 @@ export default function PlotManagement({
                 <th className="py-3 px-4 text-right">Target Prelist</th>
                 <th className="py-3 px-4 text-center">Aksi</th>
               </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-50">
-              {filteredPlots.length === 0 ? (
+            </thead>            <tbody className="divide-y divide-slate-50">
+              {paginatedPlots.length === 0 ? (
                 <tr>
                   <td colSpan={8} className="text-center py-10 text-slate-400">
                     <Info size={24} className="mx-auto text-slate-300 mb-2" />
@@ -208,7 +243,7 @@ export default function PlotManagement({
                   </td>
                 </tr>
               ) : (
-                filteredPlots.map(plot => (
+                paginatedPlots.map(plot => (
                   <tr key={plot.id} className="hover:bg-slate-50/50">
                     <td className="py-3 px-4 font-mono font-bold text-slate-800">{plot.idSubsls || plot.id}</td>
                     <td className="py-3 px-4 font-semibold text-slate-800">{plot.district}</td>
@@ -243,8 +278,45 @@ export default function PlotManagement({
                 ))
               )}
             </tbody>
-          </table>
-        </div>
+          </table>        </div>
+
+        {/* Pagination Controls */}
+        {totalPages > 1 && (
+          <div className="flex items-center justify-between p-4 border-t border-slate-100">
+            <span className="text-[11px] font-mono text-slate-400">
+              Page {currentPage} of {totalPages} · Showing {paginatedPlots.length} of {filteredPlots.length} Sub-SLS
+            </span>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+                disabled={currentPage === 1}
+                className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 disabled:bg-slate-50 disabled:text-slate-300 text-slate-700 text-xs rounded-lg transition-colors cursor-pointer"
+              >
+                Prev
+              </button>
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
+                <button
+                  key={page}
+                  onClick={() => setCurrentPage(page)}
+                  className={`px-2.5 py-1.5 text-xs rounded-lg transition-colors cursor-pointer ${
+                    currentPage === page
+                      ? 'bg-slate-900 text-white font-bold'
+                      : 'bg-slate-100 hover:bg-slate-200 text-slate-700'
+                  }`}
+                >
+                  {page}
+                </button>
+              ))}
+              <button
+                onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+                disabled={currentPage === totalPages}
+                className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 disabled:bg-slate-50 disabled:text-slate-300 text-slate-700 text-xs rounded-lg transition-colors cursor-pointer"
+              >
+                Next
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
       {showModal && (

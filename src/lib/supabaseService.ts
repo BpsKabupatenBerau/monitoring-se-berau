@@ -186,7 +186,6 @@ export async function createUser(user: Omit<User, 'id'>): Promise<void> {
       refresh_token: previousSession.data.session.refresh_token,
     });
   }
-
   const { error: profileError } = await supabase.from('pengguna').upsert({
     id:               authUserId,
     legacy_id:        authUserId,
@@ -201,6 +200,8 @@ export async function createUser(user: Omit<User, 'id'>): Promise<void> {
   }, { onConflict: 'id' });
 
   if (profileError) throw profileError;
+  console.log(`[createUser] Created user: ${user.username}, role: ${user.role}, district: ${user.district}`);
+
 
   if (user.role === 'PPL' && user.pmlId) {
     await supabase.from('penugasan_pml_ppl').upsert({
@@ -265,16 +266,38 @@ function rowToPlot(row: PlotWilayahRow): Plot {
 }
 
 export async function fetchPlots(): Promise<Plot[]> {
-  const { data, error } = await supabase
-    .from('plot_wilayah')
-    .select('*')
-    .order('idsubsls')
-    .range(0,2000);
-  if (error) {
-    console.error('[fetchPlots]', error.message);
-    return [];
+  const pageSize = 1000;
+  let allData: PlotWilayahRow[] = [];
+  let page = 0;
+  let hasMore = true;
+
+  while (hasMore) {
+    const { data, error, count } = await supabase
+      .from('plot_wilayah')
+      .select('*', { count: 'exact' })
+      .order('idsubsls')
+      .range(page * pageSize, (page + 1) * pageSize - 1);
+
+    if (error) {
+      console.error('[fetchPlots]', error.message);
+      return [];
+    }
+
+    if (!data || data.length === 0) {
+      hasMore = false;
+    } else {
+      allData = allData.concat(data as PlotWilayahRow[]);
+      hasMore = data.length === pageSize;
+      page++;
+    }
+
+    if (page === 1) {
+      console.log(`[fetchPlots] Loaded ${allData.length} plots (total in DB: ${count})`);
+    }
   }
-  return (data as PlotWilayahRow[]).map(rowToPlot);
+
+  console.log(`[fetchPlots] Completed: fetched all ${allData.length} plots`);
+  return allData.map(rowToPlot);
 }
 
 export async function createPlot(plot: Omit<Plot, 'id'>): Promise<void> {
