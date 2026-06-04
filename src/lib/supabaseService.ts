@@ -821,41 +821,65 @@ export async function signInUser(usernameOrEmail: string, password?: string): Pr
 
 
 export async function getAssignments() {
-  const { data, error } = await supabase
-    .from('plot_wilayah')
-    .select(`
-      id,
-      idsubsls,
-      kecamatan,
-      desa,
-      nama_sls,
-      target_prelist,
+  const pageSize = 1000;
 
-      korwil_id,
-      pml_id,
-      ppl_id,
+  let page = 0;
+  let hasMore = true;
+  let allData: any[] = [];
 
-      korwil:korwil_id (
+  while (hasMore) {
+    const { data, error } = await supabase
+      .from('plot_wilayah')
+      .select(`
         id,
-        nama_lengkap
-      ),
+        idsubsls,
+        kecamatan,
+        desa,
+        nama_sls,
+        target_prelist,
 
-      pml:pml_id (
-        id,
-        nama_lengkap
-      ),
+        korwil_id,
+        pml_id,
+        ppl_id,
 
-      ppl:ppl_id (
-        id,
-        nama_lengkap
-      )
-    `)
-    .order('kecamatan')
-    .order('desa');
+        korwil:korwil_id (
+          id,
+          nama_lengkap
+        ),
 
-  if (error) throw error;
+        pml:pml_id (
+          id,
+          nama_lengkap
+        ),
 
-  return data;
+        ppl:ppl_id (
+          id,
+          nama_lengkap
+        )
+      `)
+      .order('kecamatan')
+      .order('desa')
+      .range(
+        page * pageSize,
+        (page + 1) * pageSize - 1
+      );
+
+    if (error) throw error;
+
+    if (!data || data.length === 0) {
+      hasMore = false;
+    } else {
+      allData.push(...data);
+      hasMore = data.length === pageSize;
+      page++;
+    }
+  }
+
+  console.log(
+    `[getAssignments] Loaded ${allData.length} assignments`
+  );
+
+  return allData;
 }
 
 export async function getKorwilList() {
