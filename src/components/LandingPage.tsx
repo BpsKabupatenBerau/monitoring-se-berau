@@ -42,10 +42,10 @@ export default function LandingPage({ onEnterPortal, onEnterQuickDemo }: Landing
           </div>
           <div>
             <div className="flex items-center gap-1.5">
-              <h1 className="font-display font-black text-sm tracking-tighter uppercase leading-none text-amber-400">SE2026 MONITORING</h1>
+              <h1 className="font-display font-black text-sm tracking-tighter uppercase leading-none text-amber-400">MONITORING SE 2026</h1>
               <span className="text-[9px] font-mono font-bold bg-slate-800 text-amber-300 border border-slate-700 px-1.5 py-0.2">BPS BERAU</span>
             </div>
-            <p className="text-[9px] text-slate-400 font-medium tracking-widest uppercase mt-0.5">REGENCY STATISTICS FIELD ASSISTANT ENGINE</p>
+            {/* <p className="text-[9px] text-slate-400 font-medium tracking-widest uppercase mt-0.5">REGENCY STATISTICS FIELD ASSISTANT ENGINE</p> */}
           </div>
         </div>
 
@@ -65,12 +65,7 @@ export default function LandingPage({ onEnterPortal, onEnterQuickDemo }: Landing
         <div className="max-w-6xl mx-auto relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
           
           {/* Hero Left */}
-          <div className="lg:col-span-7 space-y-6">
-            <div className="inline-flex items-center gap-2 px-3 py-1 bg-amber-400/10 border border-amber-400/30 text-amber-300 rounded-none text-xs font-mono">
-              <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
-              <span>OPERASI DI LAPANGAN SEDANG BERJALAN (JUNI – SEPTEMBER 2026)</span>
-            </div>
-            
+          <div className="lg:col-span-7 space-y-6">            
             <h1 className="font-display font-black text-4xl md:text-5xl lg:text-6xl text-white tracking-tight leading-none uppercase">
               Sensus Ekonomi <br/>
               <span className="text-amber-400">SE2026</span> Berau <br/>
@@ -78,7 +73,7 @@ export default function LandingPage({ onEnterPortal, onEnterQuickDemo }: Landing
             </h1>
             
             <p className="text-sm md:text-base text-slate-300 max-w-xl leading-relaxed font-sans">
-              Sistem Pemantauan Operasional Lapangan Real-Time Terintegrasi Badan Pusat Statistik (BPS) Kabupaten Berau. Memfasilitasi koordinasi berjenjang dari Koordinator Wilayah (Korwil), Pengawas Lapangan (PML), hingga Petugas Sensus (PPL).
+              Sistem Pemantauan Operasional Lapangan Real-Time Terintegrasi Badan Pusat Statistik (BPS) Kabupaten Berau. Memfasilitasi koordinasi berjenjang dari PJ  Wilayah, Pengawas Lapangan (PML), hingga Petugas Sensus (PPL).
             </p>
             
             <div className="flex flex-wrap items-center gap-4 pt-2">
@@ -88,12 +83,12 @@ export default function LandingPage({ onEnterPortal, onEnterQuickDemo }: Landing
               >
                 Akses Portal Monitoring
               </button>
-              <a
+              {/* <a
                 href="#features"
                 className="px-6 py-3 bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold font-mono text-xs border-2 border-slate-700 hover:text-white transition-colors uppercase"
               >
                 Lihat Konsol Fitur
-              </a>
+              </a> */}
             </div>
           </div>
 

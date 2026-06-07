@@ -26,6 +26,7 @@ import {
   Calendar,
   LogOut,
   Loader2,
+  Menu, X,
 } from 'lucide-react';
 
 // ─── Date Range Helper ────────────────────────────────────────────────────────
@@ -368,19 +369,28 @@ export default function App() {
       {/* HEADER */}
       <header className="bg-slate-900 border-b-4 border-slate-950 sticky top-0 z-40 px-6 py-4 flex items-center justify-between text-white shadow-none">
         <div className="flex items-center gap-4">
+          <button 
+              onClick={() => setShowMobileMenu(!showMobileMenu)}
+              className="md:hidden p-2 border border-slate-700">
+                {showMobileMenu ? (
+                  <X size={18}/>
+                ) : (
+                  <Menu size={18}/>
+                )}
+          </button>
           <div className="w-8 h-8 bg-amber-400 rounded-none flex items-center justify-center text-slate-900 font-black text-xl shrink-0 border-2 border-slate-900">
             S
           </div>
           <div>
             <div className="flex items-center gap-1.5">
-              <h1 className="font-display font-black text-sm tracking-tighter uppercase leading-none text-amber-400">SE2026 MONITORING</h1>
+              <h1 className="font-display font-black text-sm tracking-tighter uppercase leading-none text-amber-400">MONITORING SE2026</h1>
               <span className="text-[9px] font-mono font-bold bg-slate-800 text-amber-300 border border-slate-700 px-1.5 py-0.2">BPS BERAU</span>
             </div>
+            
             <div className="flex items-center gap-1.5 mt-0.5">
-              <p className="text-[9px] text-slate-400 font-medium tracking-widest uppercase">REGENCY STATISTICS FIELD ASSISTANT ENGINE</p>
               <span className={`w-1.5 h-1.5 rounded-full ${dbLoading ? 'bg-amber-400' : 'bg-emerald-500'} animate-pulse`} />
               <span className="text-[8px] font-mono font-bold text-slate-400 uppercase tracking-tight">
-                {dbLoading ? 'Sync...' : 'Supabase'}
+                {dbLoading ? 'Sync...' : 'Online'}
               </span>
             </div>
           </div>
@@ -388,20 +398,6 @@ export default function App() {
 
         {/* Date + Controls */}
         <div className="flex items-center gap-3">
-          <div className="hidden sm:flex items-center gap-1.5 bg-slate-800 p-1 px-2.5 border-2 border-slate-700 text-xs text-slate-300 font-mono">
-            <Calendar size={13} className="text-amber-400" />
-            <span>Tanggal:</span>
-            <select
-              value={selectedDate}
-              onChange={(e) => setSelectedDate(e.target.value)}
-              className="bg-transparent text-white font-bold outline-none font-mono cursor-pointer"
-            >
-              {CENSUS_DATES.map(d => (
-                <option key={d.value} className="bg-slate-900" value={d.value}>{d.label}</option>
-              ))}
-            </select>
-          </div>
-
           <button
             onClick={() => {
               setCurrentUser(null);
@@ -416,9 +412,39 @@ export default function App() {
         </div>
       </header>
 
+      {/* MOBILE MENU */}
+      {showMobileMenu && (
+        <div className="md:hidden px-4 pt-4">
+          <nav className="geo-card p-2 flex flex-col gap-1.5">
+            {getTabsByRole().map(tab => {
+              const TabIcon = tab.icon;
+
+
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => {
+                    setActiveTab(tab.id);
+                    setShowMobileMenu(false);
+                  }}
+                  className={`flex items-center gap-2 px-3 py-3 text-xs font-black uppercase ${
+                    activeTab === tab.id
+                      ? 'bg-slate-900 text-amber-400'
+                      : 'text-slate-700'
+                  }`}
+                >
+                  <TabIcon size={14} />
+                  <span>{tab.name}</span>
+                </button>
+              );
+            })}
+          </nav>
+        </div>
+      )}
+
       {/* DASHBOARD CONTAINER */}
       <div className="flex-1 flex flex-col md:flex-row max-w-7xl w-full mx-auto p-4 md:p-6 gap-6">
-        <aside className="w-full md:w-64 shrink-0 flex flex-col gap-4">
+        <aside className="hidden md:flex md:w-64 shrink-0 flex flex-col gap-4">
           <div className="geo-card p-4 space-y-3">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-none bg-slate-100 border-2 border-slate-900 flex items-center justify-center shrink-0">
@@ -433,14 +459,28 @@ export default function App() {
             </div>
             <div className="border-t-2 border-slate-900 pt-2" />
             <div className="text-[11px] text-slate-850 font-mono space-y-1">
-              <div>ID: <span className="font-bold text-slate-900">{currentUser.id}</span></div>
               {currentUser.assignedDistricts && currentUser.assignedDistricts.length > 0 && (
                 <div>Kecamatan: <span className="font-bold text-slate-900">{currentUser.assignedDistricts.join(', ')}</span></div>
               )}
             </div>
+            <div className="border-t border-slate-300 pt-2">
+              <div className="flex items-center gap-1 mb-1">
+                <Calendar size={13} className="text-amber-400" />
+                <span className="font-mono text-xs text-slate-850 font-bold uppercase">Tanggal</span>
+              </div>
+              <select
+                value={selectedDate}
+                onChange={(e) => setSelectedDate(e.target.value)}
+                className="w-full border border-slate-300 px-2 py-1 text-xs"
+              >
+                {CENSUS_DATES.map(d => (
+                  <option key={d.value} value={d.value}>{d.label}</option>
+                ))}
+              </select>
+            </div>
           </div>
 
-          <nav className="geo-card p-2 shadow-none flex flex-row md:flex-col gap-1.5 overflow-x-auto md:overflow-x-visible">
+          <nav className="geo-card p-2 shadow-none flex flex-col gap-1.5">
             {getTabsByRole().map(tab => {
               const TabIcon = tab.icon;
               return (
@@ -600,8 +640,8 @@ export default function App() {
 
       {/* FOOTER */}
       <footer className="bg-slate-900 text-slate-450 text-[10px] py-4 text-center border-t border-slate-800 space-y-1 font-mono">
-        <p>© 2026 Badan Pusat Statistik (BPS) Kabupaten Berau. Hak Cipta Dilindungi Undang-Undang.</p>
-        <p className="text-slate-550">Sistem Monitoring Harian SE2026 v2.0.0 · Powered by Supabase PostgreSQL</p>
+        <p>© 2026 Badan Pusat Statistik (BPS) Kabupaten Berau.</p>
+        <p className="text-slate-550">Sistem Monitoring Harian SE2026 v1.0.0</p>
       </footer>
 
     </div>

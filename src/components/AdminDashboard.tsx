@@ -195,7 +195,7 @@ export default function AdminDashboard({
     <div className="space-y-6" id="admin-dashboard">
       
       {/* Top Banner with Stats BPS Berau Header */}
-      <div className="geo-card p-6 flex flex-col xl:flex-row xl:items-center justify-between gap-6 shadow-none">
+      {/*<div className="geo-card p-6 flex flex-col xl:flex-row xl:items-center justify-between gap-6 shadow-none">
         <div className="space-y-1">
           <span className="geo-badge text-[10px] bg-slate-900 text-amber-400">
             KANTOR BPS KABUPATEN BERAU
@@ -212,38 +212,38 @@ export default function AdminDashboard({
           <span className="text-slate-900 font-bold">Live Census Server ID: </span>
           <span className="font-extrabold text-slate-900">SE26-BERAU-MAIN</span>
         </div>
-      </div>
+      </div>*/}
 
       {/* Main KPI Stats Rows - exact PRD requested values! */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5" id="admin-primary-stats">
         <div className="geo-card p-5 space-y-2">
-          <p className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em] mb-1">Total SLS Ditargetkan</p>
+          <p className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em] mb-1">Total SLS/Sub-SLS</p>
           <p className="text-4xl font-display font-black text-slate-900" id="adm-total-plots-count">
             {totalPlotsCount}
           </p>
-          <div className="text-[10px] text-slate-450 font-mono font-bold">Blok SLS terdaftar dari pusat.</div>
+          <div className="text-[10px] text-slate-450 font-mono font-bold">SLS/Sub-SLS</div>
         </div>
 
         <div className="geo-card p-5 space-y-2">
-          <p className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em] mb-1">Telah Dilaporkan Hari Ini</p>
+          <p className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em] mb-1">SLS Yang Dilaporkan Hari Ini</p>
           <p className="text-4xl font-display font-black text-emerald-600" id="adm-reported-today-count">
             {reportedPlotsCount}
           </p>
           <div className="text-[10px] font-mono text-emerald-700 bg-emerald-50 border border-emerald-250 px-1.5 py-0.5 inline-block font-bold">
-            {totalPlotsCount > 0 ? Math.round((reportedPlotsCount / totalPlotsCount) * 100) : 0}% Kepatuhan Hari Ini
+            {totalPlotsCount > 0 ? Math.round((reportedPlotsCount / totalPlotsCount) * 100) : 0}% Realisasi Pelaporan
           </div>
         </div>
 
         <div className="geo-card-amber p-5 space-y-2">
-          <p className="text-[10px] font-bold text-slate-900 uppercase tracking-[0.2em] mb-1">Belum Melaporkan Hari Ini</p>
+          <p className="text-[10px] font-bold text-slate-900 uppercase tracking-[0.2em] mb-1">SLS Belum Dilaporkan Hari Ini</p>
           <p className="text-4xl font-display font-black text-red-600 font-mono" id="adm-unreported-today-count">
             {unreportedPlotsCount}
           </p>
-          <div className="text-[10px] text-slate-950 font-bold uppercase font-mono">Blok SLS menanti pelaporan.</div>
+          <div className="text-[10px] text-slate-950 font-bold uppercase font-mono">SLS yang belum dilaporkan</div>
         </div>
 
         <div className="geo-card p-5 space-y-2">
-          <p className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em] mb-1">Progres Penyelesaian Selesai</p>
+          <p className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em] mb-1">Realisasi Penyelesaian</p>
           <div className="flex items-baseline gap-2">
             <p className="text-4xl font-display font-black text-indigo-600" id="adm-overall-progress">
               {totalProgressPercentage}%
@@ -266,7 +266,7 @@ export default function AdminDashboard({
               <h2 className="font-display font-black text-slate-900 flex items-center gap-2 uppercase tracking-tight">
                 <Building2 size={18} className="text-indigo-600 shrink-0" /> Ringkasan Kecamatan
               </h2>
-              <p className="text-[11px] text-slate-550 mt-0.5">Metrik performa dan progress census terdaftar per kecamatan.</p>
+              <p className="text-[11px] text-slate-550 mt-0.5">Metrik performa dan progress sensus per kecamatan.</p>
             </div>
             <span className="geo-badge text-[10px] bg-slate-100 text-slate-900 border-slate-400 px-2.5 py-0.5 font-mono">
               {districtSummaries.length} Di-assign
@@ -329,7 +329,6 @@ export default function AdminDashboard({
               <h2 className="font-display font-black text-slate-900 flex items-center gap-1.5 uppercase tracking-tight">
                 <Users size={18} className="text-indigo-600 shrink-0" /> Pengguna Sensus
               </h2>
-              <p className="text-[11px] text-slate-500 mt-0.5">Aktivasi akun tim sensus Berau.</p>
             </div>
             <button
               onClick={() => setShowUserModal(true)}
@@ -401,7 +400,7 @@ export default function AdminDashboard({
         </div>
 
         {issues.length === 0 ? (
-          <p className="text-slate-500 text-xs italic text-center py-6">Alhamdulillah, tidak ada kendala lapangan dilaporkan.</p>
+          <p className="text-slate-500 text-xs italic text-center py-6">Tidak ada kendala lapangan dilaporkan.</p>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
             {issues.map(issue => (
@@ -520,10 +519,10 @@ export default function AdminDashboard({
                   onChange={(e) => setRole(e.target.value as UserRole)}
                   className="w-full bg-slate-50 border border-slate-200 outline-none p-2.5 rounded-lg focus:bg-white text-xs"
                 >
-                  <option value="KORWIL">KORWIL</option>
-                  <option value="PML">PML (Supervisor Lapangan)</option>
-                  <option value="PPL">PPL (Pencacah Lapangan)</option>
-                  <option value="ADMIN">ADMINISTRATOR (BPS Berau)</option>
+                  <option value="PJ_WILAYAH">PJ WILAYAH</option>
+                  <option value="PML">PML </option>
+                  <option value="PPL">PPL </option>
+                  <option value="ADMIN">ADMINISTRATOR</option>
                 </select>
               </div>
 
