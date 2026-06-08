@@ -6,3 +6,7 @@ coverage/
 *.log
 .env*
 !.env.example
+check_constraints.cjs
+firebase-applet-config.json
+firebase-blueprint.json
+security_spec.md
