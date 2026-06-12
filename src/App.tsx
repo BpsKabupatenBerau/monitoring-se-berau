@@ -66,7 +66,18 @@ export default function App() {
 
   const [selectedDate, setSelectedDate] = useState<string>(() => {
     const saved = localStorage.getItem('se2026_selected_date');
-    return saved || '2026-06-02';
+    
+    if (saved) return saved;
+
+    const today = new Date().toISOString().split('T')[0];
+
+    if (today < '2026-06-01')
+      return '2026-06-01';
+
+    if (today > '2026-09-30')
+      return '2026-09-30';
+
+    return today;
   });
 
   const [activeTab, setActiveTab] = useState<string>('dashboard');
@@ -444,7 +455,7 @@ export default function App() {
 
       {/* DASHBOARD CONTAINER */}
       <div className="flex-1 flex flex-col md:flex-row max-w-7xl w-full mx-auto p-4 md:p-6 gap-6">
-        <aside className="hidden md:flex md:w-64 shrink-0 flex flex-col gap-4">
+        <aside className="w-full md:w-64 shrink-0 flex flex-col gap-4">
           <div className="geo-card p-4 space-y-3">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-none bg-slate-100 border-2 border-slate-900 flex items-center justify-center shrink-0">
@@ -478,9 +489,12 @@ export default function App() {
                 ))}
               </select>
             </div>
+            <button onClick={() => setSelectedDate(new Date().toISOString().split('T')[0])}>
+              <span className='geo-badge'>Hari Ini</span>
+            </button>
           </div>
 
-          <nav className="geo-card p-2 shadow-none flex flex-col gap-1.5">
+          <nav className="hidden md:flex geo-card p-2 shadow-none flex flex-col gap-1.5">
             {getTabsByRole().map(tab => {
               const TabIcon = tab.icon;
               return (

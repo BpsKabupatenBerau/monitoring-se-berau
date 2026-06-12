@@ -85,7 +85,9 @@ export default function PmlDashboard({
   const [showAddModal, setShowAddModal] = useState(false);
   const [addPplId, setAddPplId] = useState('');
   const [addPlotId, setAddPlotId] = useState('');
-  const [addCompletedUnits, setAddCompletedUnits] = useState<number>(0);
+  const [addRutaDidata, setAddRutaDidata] = useState<number>(0);
+  const [addUsahaDidata, setAddUsahaDidata] = useState<number>(0);
+  const [addStikerDigunakan, setAddStikerDigunakan] = useState<number>(0);
   const [addStatus, setAddStatus] = useState<MonitoringStatus>('IN_PROGRESS');
   const [addHasIssue, setAddHasIssue] = useState(false);
   const [addIssueDesc, setAddIssueDesc] = useState('');
@@ -95,7 +97,9 @@ export default function PmlDashboard({
   // Same-day corrections are operational; previous dates are locked as audit history.
   const [showEditModal, setShowEditModal] = useState(false);
   const [editingSubmission, setEditingSubmission] = useState<DailySubmission | null>(null);
-  const [editCompletedUnits, setEditCompletedUnits] = useState<number>(0);
+  const [editRutaDidata, setEditRutaDidata] = useState<number>(0);
+  const [editUsahaDidata, setEditUsahaDidata] = useState<number>(0);
+  const [editStikerDigunakan, setEditStikerDigunakan] = useState<number>(0);
   const [editStatus, setEditStatus] = useState<MonitoringStatus>('IN_PROGRESS');
   const [editHasIssue, setEditHasIssue] = useState(false);
   const [editIssueDesc, setEditIssueDesc] = useState('');
@@ -124,6 +128,10 @@ export default function PmlDashboard({
     submissions.some(s => s.plotId === plot.id && s.status === 'COMPLETED')
   ).length;
 
+  const totalRuta = submissionsToday.reduce((acc, curr) => acc + (curr.rutaDidata ?? 0),0);
+  const totalUsaha = submissionsToday.reduce((acc, curr) => acc + (curr.usahaDidata ?? 0),0);
+  const totalStiker = submissionsToday.reduce((acc, curr) => acc + (curr.stikerDigunakan ?? 0),0);
+
   const progressPct = totalSubSlsSupervised > 0 
     ? Math.round((completedPlotsCount / totalSubSlsSupervised) * 100) 
     : 0;
@@ -151,8 +159,8 @@ export default function PmlDashboard({
       return;
     }
 
-    if (addCompletedUnits < 0) {
-      setAddError('Jumlah rumah tangga tidak boleh bernilai negatif.');
+    if (addRutaDidata < 0 || addUsahaDidata < 0 || addStikerDigunakan < 0) {
+      setAddError('Jumlah tidak boleh bernilai negatif.');
       return;
     }
 
@@ -177,7 +185,10 @@ export default function PmlDashboard({
       date: selectedDate,
       plotId: addPlotId,
       pplId: addPplId,
-      completedUnits: addCompletedUnits,
+      completedUnits: addRutaDidata + addUsahaDidata,
+      rutaDidata: addRutaDidata,
+      usahaDidata: addUsahaDidata,
+      stikerDigunakan: addStikerDigunakan,
       status: addStatus,
       issueIndicator: addHasIssue,
       issueDescription: addHasIssue ? addIssueDesc : '',
@@ -189,7 +200,9 @@ export default function PmlDashboard({
       setShowAddModal(false);
       setAddPplId('');
       setAddPlotId('');
-      setAddCompletedUnits(0);
+      setAddRutaDidata(0);
+      setAddUsahaDidata(0);
+      setAddStikerDigunakan(0);
       setAddStatus('IN_PROGRESS');
       setAddHasIssue(false);
       setAddIssueDesc('');
@@ -209,8 +222,8 @@ export default function PmlDashboard({
       return;
     }
 
-    if (editCompletedUnits < 0) {
-      setEditError('Jumlah unit selesai dicacah tidak boleh negatif.');
+    if (editRutaDidata < 0 || editUsahaDidata < 0 || editStikerDigunakan < 0) {
+      setEditError('Jumlah tidak boleh bernilai negatif.');
       return;
     }
 
@@ -221,7 +234,10 @@ export default function PmlDashboard({
 
     onUpdateSubmission({
       ...editingSubmission,
-      completedUnits: editCompletedUnits,
+      completedUnits: editRutaDidata + editUsahaDidata,
+      rutaDidata: editRutaDidata,
+      usahaDidata: editUsahaDidata,
+      stikerDigunakan: editStikerDigunakan,
       status: editStatus,
       issueIndicator: editHasIssue,
       issueDescription: editHasIssue ? editIssueDesc : '',
@@ -239,7 +255,9 @@ export default function PmlDashboard({
   const handleOpenEdit = (sub: DailySubmission) => {
     if (!canMutateSubmission(sub)) return;
     setEditingSubmission(sub);
-    setEditCompletedUnits(sub.completedUnits);
+    setEditRutaDidata(sub.rutaDidata ?? 0);
+    setEditUsahaDidata(sub.usahaDidata ?? 0);
+    setEditStikerDigunakan(sub.stikerDigunakan ?? 0);
     setEditStatus(sub.status);
     setEditHasIssue(sub.issueIndicator);
     setEditIssueDesc(sub.issueDescription);
@@ -309,7 +327,9 @@ export default function PmlDashboard({
           onClick={() => {
             setAddPplId('');
             setAddPlotId('');
-            setAddCompletedUnits(0);
+            setAddRutaDidata(0);
+            setAddUsahaDidata(0);
+            setAddStikerDigunakan(0);
             setAddStatus('IN_PROGRESS');
             setAddHasIssue(false);
             setAddIssueDesc('');
@@ -318,7 +338,7 @@ export default function PmlDashboard({
           }}
           className="geo-btn-amber py-3 px-5 flex items-center justify-center gap-2 font-black text-xs leading-none uppercase shrink-0"
         >
-          <Plus size={15} className="stroke-[3px]" /> INPUT PROGRESS HARIAN TIM
+          <Plus size={15} className="stroke-[3px]" /> INPUT PROGRESS HARIAN
         </button>
       </div>
 
@@ -345,12 +365,12 @@ export default function PmlDashboard({
         </div>
 
         <div className="geo-card p-4 shadow-none">
-          <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest leading-none mb-1">Unit Hasil Terdata</p>
+          <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest leading-none mb-1">Jumlah SLS/Sub-SLS</p>
           <div className="flex items-baseline gap-2 mt-1">
             <span className="text-3xl font-display font-black text-teal-650" id="estimated-units">
-              {supervisedSubmissions.reduce((acc, curr) => acc + curr.completedUnits, 0)}
+              {supervisedSubmissions.reduce((acc, curr) => acc + (curr.completedUnits ?? 0),0)}
             </span>
-            <span className="text-xs text-slate-500 uppercase font-mono font-bold">Unit</span>
+            <span className="text-xs text-slate-500 uppercase font-mono font-bold">SLS/Sub-SLS</span>
           </div>
         </div>
 
@@ -477,7 +497,6 @@ export default function PmlDashboard({
                     <div className="p-4 bg-slate-100 border-2 border-slate-900 rounded-none flex items-center justify-between">
                       <div>
                         <h4 className="font-display font-black text-slate-900 text-sm uppercase leading-tight">{selectedPpl.name}</h4>
-                        <p className="text-xs text-slate-600 font-mono">PPL ID: {selectedPplId}</p>
                       </div>
                       <span className="text-[10px] text-slate-900 bg-white border-2 border-slate-900 px-2 py-1 font-mono uppercase font-black shadow-[1.5px_1.5px_0px_0px_#0f172a]">
                         {plotsAllocated.length} SLS TUGAS
@@ -512,7 +531,7 @@ export default function PmlDashboard({
                               <div>
                                 <div className="flex items-center justify-between">
                                   <span className="font-mono text-[10px] font-black text-slate-900 bg-slate-100 border border-slate-950 px-1.5 py-0.5">
-                                    {plot.subSls}
+                                    {`${plot.sls}-${plot.subSls}`}
                                   </span>
                                   <span className={`text-[9px] font-mono font-black px-1.5 py-0.5 rounded-none border ${statColor} uppercase`}>
                                     {statusLabel}
@@ -525,7 +544,12 @@ export default function PmlDashboard({
                                 {findSubToday ? (
                                   <div className="flex items-center justify-between">
                                     <span className="text-[10px] text-slate-500 font-mono">Input Hari Ini:</span>
-                                    <span className="text-xs font-black text-indigo-700 font-mono">+{findSubToday.completedUnits} Unit</span>
+                                    <div className="text-xs font-black text-indigo-700 font-mono">
+                                      <div className="text-right text-[10px] font-mono">
+                                        <div>Ruta: {findSubToday.rutaDidata ?? 0}</div>
+                                        <div>Usaha: {findSubToday.usahaDidata ?? 0}</div>
+                                      </div>
+                                    </div>
                                   </div>
                                 ) : (
                                   <div className="flex items-center justify-between">
@@ -535,7 +559,9 @@ export default function PmlDashboard({
                                         onClick={() => {
                                           setAddPplId(selectedPplId);
                                           setAddPlotId(plot.id);
-                                          setAddCompletedUnits(0);
+                                          setAddRutaDidata(0);
+                                          setAddUsahaDidata(0);
+                                          setAddStikerDigunakan(0);
                                           setAddStatus('IN_PROGRESS');
                                           setAddHasIssue(false);
                                           setAddIssueDesc('');
@@ -558,7 +584,7 @@ export default function PmlDashboard({
 
                     {/* Submissions of selected PPL */}
                     <div className="space-y-2 mt-4">
-                      <h5 className="text-[10px] font-mono font-black text-slate-900 uppercase tracking-wider block">2. RIWAYAT MONITORING PETUGAS (AUDITABLE):</h5>
+                      <h5 className="text-[10px] font-mono font-black text-slate-900 uppercase tracking-wider block">2. RIWAYAT MONITORING PETUGAS :</h5>
                       {ppliSubmissions.length === 0 ? (
                         <div className="p-4 border-2 border-dashed border-slate-300 text-center">
                           <p className="text-xs text-slate-500 font-mono">Belum ada laporan yang terekam untuk PPL ini.</p>
@@ -578,7 +604,7 @@ export default function PmlDashboard({
                                       TANGGAL LAPOR: {sub.date}
                                     </span>
                                     <span className="font-black text-slate-900 font-display uppercase text-xs">
-                                      {pl ? `${pl.village} (${pl.subSls})` : 'SLS Tidak Ditemukan'}
+                                      {pl ? `${pl.village} (${pl.sls}-${pl.subSls})` : 'SLS Tidak Ditemukan'}
                                     </span>
                                   </div>
 
@@ -607,7 +633,20 @@ export default function PmlDashboard({
                                 </div>
 
                                 <div className="flex items-center justify-between py-1 border-y border-slate-200 font-mono text-[11px]">
-                                  <div className="text-slate-700"> Hasil Terdata: <span className="font-black text-indigo-700 font-mono">+{sub.completedUnits} Unit</span></div>
+                                  <div className="text-slate-700"> 
+                                    Hasil Terdata: 
+                                    <div className="grid grid-cols-3 gap-2 text-[10px]">
+                                      <div>
+                                        Ruta: <span className="font-black"> {sub.rutaDidata ?? 0} </span>
+                                      </div>
+                                      <div>
+                                        Usaha: <span className="font-black"> {sub.usahaDidata ?? 0} </span>
+                                      </div>
+                                      <div>
+                                        Stiker: <span className="font-black"> {sub.stikerDigunakan ?? 0} </span>
+                                      </div>
+                                    </div>
+                                  </div>
                                   <div>Status: {getStatusBadge(sub.status)}</div>
                                 </div>
 
@@ -615,10 +654,10 @@ export default function PmlDashboard({
                                 <div className="text-[9.5px]/none font-mono text-slate-500 space-y-1.5 pt-1">
                                   <div className="flex items-center gap-1">
                                     <UserCheck size={11} className="text-slate-650" />
-                                    <span>Pencatat / Verifikator: <strong className="text-slate-900">{reporterName}</strong></span>
+                                    <span>PML: <strong className="text-slate-900">{reporterName}</strong></span>
                                   </div>
                                   <div>
-                                    Post Pertama: {sub.timestamp ? new Date(sub.timestamp).toLocaleString('id-ID') : '-'}
+                                    Input Pertama: {sub.timestamp ? new Date(sub.timestamp).toLocaleString('id-ID') : '-'}
                                   </div>
                                   {sub.lastModifiedTimestamp && (
                                     <div className="text-[9.5px] uppercase text-amber-900 font-black bg-amber-50 px-1 py-0.5 border border-amber-300">
@@ -750,9 +789,9 @@ export default function PmlDashboard({
               {/* Header */}
               <div className="bg-slate-900 text-white px-6 py-4 flex items-center justify-between border-b-4 border-slate-900">
                 <div className="space-y-0.5">
-                  <h3 className="text-sm sm:text-base font-display font-black uppercase tracking-tight">KUTIP & INPUT LAPORAN HARIAN (BY PML)</h3>
+                  <h3 className="text-sm sm:text-base font-display font-black uppercase tracking-tight">INPUT LAPORAN HARIAN</h3>
                   <p className="text-amber-400 text-xs font-mono font-bold">
-                    Supervisi / Input On Behalf | Tanggal: {selectedDate}
+                    Tanggal: {selectedDate}
                   </p>
                 </div>
                 <button
@@ -781,7 +820,7 @@ export default function PmlDashboard({
                 {/* 1. FIRST CHOOSE THE RESPONSIBLE PPL */}
                 <div className="space-y-1.5">
                   <label className="text-[10px] font-black text-slate-900 uppercase tracking-wider block">
-                    1. PILIH PETUGAS ENUMERATOR TIM (PPL) <span className="text-rose-505">*</span>
+                    1. PILIH PPL <span className="text-rose-505">*</span>
                   </label>
                   <select
                     value={addPplId}
@@ -795,7 +834,7 @@ export default function PmlDashboard({
                     <option value="">-- Pilih Anggota PPL --</option>
                     {myPpls.map(ppl => (
                       <option key={ppl.id} value={ppl.id}>
-                        {ppl.name} (PPL ID: {ppl.id})
+                        {ppl.name}
                       </option>
                     ))}
                   </select>
@@ -804,7 +843,7 @@ export default function PmlDashboard({
                 {/* 2. CHOOSE PLOT ASSIGNED TO THAT PPL */}
                 <div className="space-y-1.5">
                   <label className="text-[10px] font-black text-slate-900 uppercase tracking-wider block">
-                    2. PILIH BLOK SENSUS / SLS TUGAS <span className="text-rose-505">*</span>
+                    2. PILIH SLS <span className="text-rose-505">*</span>
                   </label>
                   <select
                     value={addPlotId}
@@ -822,7 +861,7 @@ export default function PmlDashboard({
                           .filter(p => p.assignedPplId === addPplId)
                           .map(plot => (
                             <option key={plot.id} value={plot.id}>
-                              Desa: {plot.village} - {plot.subSls} (SLS: {plot.sls})
+                              {plot.village} - (SLS: {plot.sls} - {plot.subSls})
                             </option>
                           ))
                         }
@@ -831,26 +870,54 @@ export default function PmlDashboard({
                   </select>
                 </div>
 
-                {/* 3. Completed units */}
+                {/* 3. Hasil Pendataan */}
                 <div className="space-y-1.5">
                   <label className="text-[10px] font-black text-slate-900 uppercase tracking-wider block">
-                    3. JUMLAH UNIT SELESAI DICACAH HARI INI <span className="text-rose-505">*</span>
+                    3. JUMLAH RUTA SELESAI DICACAH HARI INI <span className="text-rose-505">*</span>
                   </label>
                   <input
                     type="number"
                     min="0"
-                    placeholder="Contoh: 15 RT / bangunan usaha"
-                    value={addCompletedUnits || ''}
-                    onChange={(e) => setAddCompletedUnits(parseInt(e.target.value) || 0)}
+                    placeholder="Contoh: 15 Ruta"
+                    value={addRutaDidata || ''}
+                    onChange={(e) => setAddRutaDidata(parseInt(e.target.value) || 0)}
+                    className="w-full bg-white border-2 border-slate-900 text-xs px-3 py-2 h-10 rounded-none font-mono outline-none"
+                    required
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-[10px] font-black text-slate-900 uppercase tracking-wider block">
+                    4. JUMLAH USAHA SELESAI DICACAH HARI INI <span className="text-rose-505">*</span>
+                  </label>
+                  <input
+                    type="number"
+                    min="0"
+                    placeholder="Contoh: 10 Usaha"
+                    value={addUsahaDidata || ''}
+                    onChange={(e) => setAddUsahaDidata(parseInt(e.target.value) || 0)}
+                    className="w-full bg-white border-2 border-slate-900 text-xs px-3 py-2 h-10 rounded-none font-mono outline-none"
+                    required
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-[10px] font-black text-slate-900 uppercase tracking-wider block">
+                    5. JUMLAH STIKER DIGUNAKAN HARI INI <span className="text-rose-505">*</span>
+                  </label>
+                  <input
+                    type="number"
+                    min="0"
+                    placeholder="Contoh: 10 Stiker"
+                    value={addStikerDigunakan || ''}
+                    onChange={(e) => setAddStikerDigunakan(parseInt(e.target.value) || 0)}
                     className="w-full bg-white border-2 border-slate-900 text-xs px-3 py-2 h-10 rounded-none font-mono outline-none"
                     required
                   />
                 </div>
 
-                {/* 4. Status selection */}
+                {/* 6. Status selection */}
                 <div className="space-y-1.5">
                   <label className="text-[10px] font-black text-slate-900 uppercase tracking-wider block">
-                    4. STATUS AKHIR SLS LAPORAN <span className="text-rose-505">*</span>
+                    6. STATUS SLS <span className="text-rose-505">*</span>
                   </label>
                   <div className="grid grid-cols-2 gap-2">
                     <button
@@ -877,38 +944,14 @@ export default function PmlDashboard({
                       <Check size={16} />
                       <span>Selesai (Completed)</span>
                     </button>
-                    <button
-                      type="button"
-                      onClick={() => setAddStatus('BLOCKED')}
-                      className={`p-3 rounded-none border-2 text-[10px] font-black uppercase flex flex-col items-center justify-center gap-1 transition-all cursor-pointer ${
-                        addStatus === 'BLOCKED'
-                          ? 'border-slate-900 bg-rose-100 text-rose-900 shadow-[2px_2px_0px_0px_#0f172a]'
-                          : 'border-slate-300 text-slate-600 bg-white'
-                      }`}
-                    >
-                      <AlertTriangle size={16} />
-                      <span>Terhambat (Blocked)</span>
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setAddStatus('NOT_STARTED')}
-                      className={`p-3 rounded-none border-2 text-[10px] font-black uppercase flex flex-col items-center justify-center gap-1 transition-all cursor-pointer ${
-                        addStatus === 'NOT_STARTED'
-                          ? 'border-slate-900 bg-slate-100 text-slate-900 shadow-[2px_2px_0px_0px_#0f172a]'
-                          : 'border-slate-300 text-slate-600 bg-white'
-                      }`}
-                    >
-                      <Plus size={16} />
-                      <span>Belum Mulai</span>
-                    </button>
                   </div>
                 </div>
 
-                {/* 5. Issue Toggle */}
+                {/* 7. Issue Toggle */}
                 <div className="p-3 bg-slate-100 border-2 border-slate-900 rounded-none space-y-2">
                   <div className="flex items-center justify-between">
                     <div>
-                      <span className="text-xs font-black text-slate-900 uppercase block leading-none">Apakah ada kendala lapang?</span>
+                      <span className="text-xs font-black text-slate-900 uppercase block leading-none">Apakah ada kendala lapangan?</span>
                       <span className="text-[9px] text-slate-500 mt-1 block">Laporkan jika ada kendala penolakan, sengketa, atau force majeure.</span>
                     </div>
                     <label className="relative inline-flex items-center cursor-pointer">
@@ -1009,7 +1052,7 @@ export default function PmlDashboard({
                   <div className="p-2 bg-slate-100 border border-slate-400 font-mono text-xs font-black text-slate-800">
                     {(() => {
                       const pplObj = users.find(u => u.id === editingSubmission.pplId);
-                      return pplObj ? `${pplObj.name} (PPL ID: ${editingSubmission.pplId})` : editingSubmission.pplId;
+                      return pplObj ? `${pplObj.name}` : editingSubmission.pplId;
                     })()}
                   </div>
                 </div>
@@ -1028,13 +1071,41 @@ export default function PmlDashboard({
                 {/* 3. Completed units */}
                 <div className="space-y-1.5">
                   <label className="text-[10px] font-black text-slate-900 uppercase tracking-wider block">
-                    JUMLAH UNIT SELESAI DICACAH HARI INI <span className="text-rose-505">*</span>
+                    JUMLAH RUTA SELESAI DICACAH HARI INI <span className="text-rose-505">*</span>
                   </label>
                   <input
                     type="number"
                     min="0"
-                    value={editCompletedUnits || ''}
-                    onChange={(e) => setEditCompletedUnits(parseInt(e.target.value) || 0)}
+                    value={editRutaDidata || ''}
+                    onChange={(e) => setEditRutaDidata(parseInt(e.target.value) || 0)}
+                    className="w-full bg-white border-2 border-slate-900 text-xs px-3 py-2 h-10 rounded-none font-mono outline-none"
+                    required
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-[10px] font-black text-slate-900 uppercase tracking-wider block">
+                    JUMLAH USAHA SELESAI DICACAH HARI INI <span className="text-rose-505">*</span>
+                  </label>
+                  <input
+                    type="number"
+                    min="0"
+                    value={editUsahaDidata || ''}
+                    onChange={(e) => setEditUsahaDidata(parseInt(e.target.value) || 0)}
+                    className="w-full bg-white border-2 border-slate-900 text-xs px-3 py-2 h-10 rounded-none font-mono outline-none"
+                    required
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-[10px] font-black text-slate-900 uppercase tracking-wider block">
+                    JUMLAH STIKER DIGUNAKAN HARI INI <span className="text-rose-505">*</span>
+                  </label>
+                  <input
+                    type="number"
+                    min="0"
+                    value={editStikerDigunakan || ''}
+                    onChange={(e) => setEditStikerDigunakan(parseInt(e.target.value) || 0)}
                     className="w-full bg-white border-2 border-slate-900 text-xs px-3 py-2 h-10 rounded-none font-mono outline-none"
                     required
                   />
@@ -1069,30 +1140,6 @@ export default function PmlDashboard({
                     >
                       <Check size={16} />
                       <span>Selesai (Completed)</span>
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setEditStatus('BLOCKED')}
-                      className={`p-3 rounded-none border-2 text-[10px] font-black uppercase flex flex-col items-center justify-center gap-1 transition-all cursor-pointer ${
-                        editStatus === 'BLOCKED'
-                          ? 'border-slate-900 bg-rose-100 text-rose-900 shadow-[2px_2px_0px_0px_#0f172a]'
-                          : 'border-slate-300 text-slate-600 bg-white'
-                      }`}
-                    >
-                      <AlertTriangle size={16} />
-                      <span>Terhambat</span>
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setEditStatus('NOT_STARTED')}
-                      className={`p-3 rounded-none border-2 text-[10px] font-black uppercase flex flex-col items-center justify-center gap-1 transition-all cursor-pointer ${
-                        editStatus === 'NOT_STARTED'
-                          ? 'border-slate-900 bg-slate-100 text-slate-900 shadow-[2px_2px_0px_0px_#0f172a]'
-                          : 'border-slate-300 text-slate-600 bg-white'
-                      }`}
-                    >
-                      <Plus size={16} />
-                      <span>Belum Mulai</span>
                     </button>
                   </div>
                 </div>

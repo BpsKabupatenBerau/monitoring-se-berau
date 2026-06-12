@@ -40,6 +40,9 @@ export interface DailySubmission {
   pplId: string;
   submittedByPmlId?: string; // PML who entered the data (and is supervisor)
   completedUnits: number;
+  rutaDidata: number;
+  usahaDidata: number;
+  stikerDigunakan: number;
   status: MonitoringStatus;
   issueIndicator: boolean;
   issueDescription: string;

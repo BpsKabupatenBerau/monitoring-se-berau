@@ -107,7 +107,7 @@ export default function RegCoDashboard({
       <div className="geo-card bg-slate-900 border-4 border-slate-900 p-6 text-white flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-none">
         <div>
           <span className="geo-badge text-[10px] bg-slate-900 text-amber-400 border-amber-450 uppercase tracking-wider font-mono">
-            PJ Wilayah / Regional Coordinator
+            PJ Wilayah
           </span>
           <h1 className="text-2xl font-display font-black mt-2 text-white uppercase leading-tight">
             Wilayah Pengawasan: Kecamatan {myDistricts.length > 0 ? myDistricts.join(', ') : 'Belum Ada Penugasan'}
@@ -129,7 +129,7 @@ export default function RegCoDashboard({
         <div className="geo-card p-4 shadow-none">
           <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest leading-none mb-1">PML Aktif</p>
           <p className="text-3xl font-display font-black text-slate-900">{myPmls.length}</p>
-          <span className="text-[10px] text-slate-500 block mt-1 font-mono uppercase font-bold">Pengawas Lapangan</span>
+          <span className="text-[10px] text-slate-500 block mt-1 font-mono uppercase font-bold">PML</span>
         </div>
 
         <div className="geo-card p-4 shadow-none">
@@ -236,7 +236,7 @@ export default function RegCoDashboard({
 
                   <div className="flex items-center gap-4 text-[10px] font-mono mt-1 pt-1.5 border-t border-slate-100 w-full text-slate-500">
                     <div>
-                      Tim PPL: <span className="font-bold text-slate-700">{pmlPpls.length} orang</span>
+                      Jumlah PPL: <span className="font-bold text-slate-700">{pmlPpls.length} orang</span>
                     </div>
                     <div>
                       Hari Ini: <span className="font-bold text-indigo-600">{pmlReportedCount} Lapor</span>
@@ -256,7 +256,7 @@ export default function RegCoDashboard({
                 <ClipboardList size={18} className="text-indigo-600" /> Kepatuhan & Progress Harian PPL
               </h2>
               <p className="text-[11px] text-slate-400 mt-0.5">
-                {selectedPmlId ? `Menampilkan PPL di bawah supervisor: ${users.find(u => u.id === selectedPmlId)?.name}` : 'Menampilkan seluruh PPL di Kecamatan tugas Anda.'}
+                {selectedPmlId ? `Menampilkan PPL di bawah PML: ${users.find(u => u.id === selectedPmlId)?.name}` : 'Menampilkan seluruh PPL di Kecamatan tugas Anda.'}
               </p>
             </div>
             
@@ -294,10 +294,10 @@ export default function RegCoDashboard({
                       <div className="flex items-center gap-2">
                         <span className={`w-2 h-2 rounded-full ${isCompliant ? 'bg-emerald-500' : 'bg-rose-500'}`} />
                         <h4 className="font-semibold text-slate-800 text-sm">{ppl.name}</h4>
-                        <span className="text-[9px] font-mono text-slate-400">Supervisi: {supervisor ? supervisor.name : 'Unknown'}</span>
+                        <span className="text-[9px] font-mono text-slate-400">PML: {supervisor ? supervisor.name : 'Unknown'}</span>
                       </div>
                       <p className="text-xs text-slate-500">
-                        Total {pplPlots.length} SLS Plot Ditugaskan | Estimasi Terdata: <span className="font-bold text-slate-700">{totalUnits} Unit</span>
+                        Total {pplPlots.length} SLS/Sub-SLS Ditugaskan | Estimasi Terdata: <span className="font-bold text-slate-700">{totalUnits} Unit</span>
                       </p>
                     </div>
 
@@ -324,7 +324,7 @@ export default function RegCoDashboard({
           <h2 className="font-display font-semibold text-slate-800 flex items-center gap-2">
             <ShieldAlert size={18} className="text-rose-500 hover:rotate-12 transition-transform" /> Kendala Aktif di Kecamatan {myDistricts.join(', ')}
           </h2>
-          <p className="text-[11px] text-slate-400 mt-0.5">Daftar issue lapangan yang dilaporkan oleh petugas agar diketahu oleh Korwil.</p>
+          <p className="text-[11px] text-slate-400 mt-0.5">Daftar kendala lapangan yang dilaporkan oleh petugas agar diketahu oleh Korwil.</p>
         </div>
 
         {regionIssues.length === 0 ? (

@@ -357,6 +357,9 @@ interface LaporanHarianRow {
   plot_legacy_id: string | null;
   status_laporan: string;
   capaian_harian: number;
+  ruta_didata_harian: number;
+  usaha_didata_harian: number;
+  stiker_digunakan_harian: number;
   ada_kendala: boolean;
   deskripsi_kendala: string | null;
   dibuat_oleh_legacy_id: string | null;
@@ -373,6 +376,9 @@ function rowToSubmission(row: LaporanHarianRow): DailySubmission {
     pplId:                 row.ppl_legacy_id ?? '',
     submittedByPmlId:      row.pml_legacy_id ?? undefined,
     completedUnits:        row.capaian_harian,
+    rutaDidata:            row.ruta_didata_harian,
+    usahaDidata:           row.usaha_didata_harian,
+    stikerDigunakan:       row.stiker_digunakan_harian,
     status:                mapStatusLaporan(row.status_laporan),
     issueIndicator:        row.ada_kendala,
     issueDescription:      row.deskripsi_kendala ?? '',
@@ -444,6 +450,10 @@ export async function createSubmission(
       status_laporan: mapStatusLaporanToDb(sub.status),
       capaian_harian: sub.completedUnits,
 
+      ruta_didata_harian: sub.rutaDidata,
+      usaha_didata_harian: sub.usahaDidata,
+      stiker_digunakan_harian: sub.stikerDigunakan,
+
       ada_kendala: sub.issueIndicator,
       deskripsi_kendala: sub.issueDescription || null,
 
@@ -471,6 +481,11 @@ export async function updateSubmission(sub: DailySubmission): Promise<void> {
     .update({
       status_laporan:    mapStatusLaporanToDb(sub.status),
       capaian_harian:    sub.completedUnits,
+
+      ruta_didata_harian: sub.rutaDidata,
+      usaha_didata_harian: sub.usahaDidata,
+      stiker_digunakan_harian: sub.stikerDigunakan,
+
       ada_kendala:       sub.issueIndicator,
       deskripsi_kendala: sub.issueDescription || null,
       pml_legacy_id:     sub.submittedByPmlId ?? null,
