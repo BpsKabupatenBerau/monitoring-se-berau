@@ -85,9 +85,9 @@ export default function PmlDashboard({
   const [showAddModal, setShowAddModal] = useState(false);
   const [addPplId, setAddPplId] = useState('');
   const [addPlotId, setAddPlotId] = useState('');
-  const [addRutaDidata, setAddRutaDidata] = useState<number | ''>('');
-  const [addUsahaDidata, setAddUsahaDidata] = useState<number | ''>('');
-  const [addStikerDigunakan, setAddStikerDigunakan] = useState<number | ''>('');
+  const [addRutaDidata, setAddRutaDidata] = useState<number | ''>(0);
+  const [addUsahaDidata, setAddUsahaDidata] = useState<number | ''>(0);
+  const [addStikerDigunakan, setAddStikerDigunakan] = useState<number | ''>(0);
   const [addStatus, setAddStatus] = useState<MonitoringStatus>('IN_PROGRESS');
   const [addHasIssue, setAddHasIssue] = useState(false);
   const [addIssueDesc, setAddIssueDesc] = useState('');
