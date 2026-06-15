@@ -97,9 +97,9 @@ export default function PmlDashboard({
   // Same-day corrections are operational; previous dates are locked as audit history.
   const [showEditModal, setShowEditModal] = useState(false);
   const [editingSubmission, setEditingSubmission] = useState<DailySubmission | null>(null);
-  const [editRutaDidata, setEditRutaDidata] = useState<number>(0);
-  const [editUsahaDidata, setEditUsahaDidata] = useState<number>(0);
-  const [editStikerDigunakan, setEditStikerDigunakan] = useState<number>(0);
+  const [editRutaDidata, setEditRutaDidata] = useState<number | ''>(0);
+  const [editUsahaDidata, setEditUsahaDidata] = useState<number | ''>(0);
+  const [editStikerDigunakan, setEditStikerDigunakan] = useState<number | ''>(0);
   const [editStatus, setEditStatus] = useState<MonitoringStatus>('IN_PROGRESS');
   const [editHasIssue, setEditHasIssue] = useState(false);
   const [editIssueDesc, setEditIssueDesc] = useState('');
