@@ -879,8 +879,11 @@ export default function PmlDashboard({
                     type="number"
                     min="0"
                     placeholder="Contoh: 15 Ruta"
-                    value={addRutaDidata || ''}
-                    onChange={(e) => setAddRutaDidata(parseInt(e.target.value) || 0)}
+                    value={addRutaDidata}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      setAddRutaDidata(value === '' ? 0 : Number(value));
+                    }}
                     className="w-full bg-white border-2 border-slate-900 text-xs px-3 py-2 h-10 rounded-none font-mono outline-none"
                     required
                   />
@@ -893,8 +896,11 @@ export default function PmlDashboard({
                     type="number"
                     min="0"
                     placeholder="Contoh: 10 Usaha"
-                    value={addUsahaDidata || ''}
-                    onChange={(e) => setAddUsahaDidata(parseInt(e.target.value) || 0)}
+                    value={addUsahaDidata}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      setAddUsahaDidata(value === '' ? 0 : Number(value));
+                    }}
                     className="w-full bg-white border-2 border-slate-900 text-xs px-3 py-2 h-10 rounded-none font-mono outline-none"
                     required
                   />
@@ -908,7 +914,10 @@ export default function PmlDashboard({
                     min="0"
                     placeholder="Contoh: 10 Stiker"
                     value={addStikerDigunakan || ''}
-                    onChange={(e) => setAddStikerDigunakan(parseInt(e.target.value) || 0)}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      setAddStikerDigunakan(value === '' ? 0 : Number(value));
+                    }}
                     className="w-full bg-white border-2 border-slate-900 text-xs px-3 py-2 h-10 rounded-none font-mono outline-none"
                     required
                   />
@@ -1076,8 +1085,11 @@ export default function PmlDashboard({
                   <input
                     type="number"
                     min="0"
-                    value={editRutaDidata || ''}
-                    onChange={(e) => setEditRutaDidata(parseInt(e.target.value) || 0)}
+                    value={editRutaDidata}
+                    onChange={(e) =>{
+                      const value = e.target.value;
+                      setEditRutaDidata(value === '' ? 0 : Number(value));
+                    }}
                     className="w-full bg-white border-2 border-slate-900 text-xs px-3 py-2 h-10 rounded-none font-mono outline-none"
                     required
                   />
@@ -1090,8 +1102,11 @@ export default function PmlDashboard({
                   <input
                     type="number"
                     min="0"
-                    value={editUsahaDidata || ''}
-                    onChange={(e) => setEditUsahaDidata(parseInt(e.target.value) || 0)}
+                    value={editUsahaDidata}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      setEditUsahaDidata(value === '' ? 0 : Number(value));
+                    }}
                     className="w-full bg-white border-2 border-slate-900 text-xs px-3 py-2 h-10 rounded-none font-mono outline-none"
                     required
                   />
@@ -1105,7 +1120,10 @@ export default function PmlDashboard({
                     type="number"
                     min="0"
                     value={editStikerDigunakan || ''}
-                    onChange={(e) => setEditStikerDigunakan(parseInt(e.target.value) || 0)}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      setEditStikerDigunakan(value === '' ? 0 : Number(value));
+                    }}
                     className="w-full bg-white border-2 border-slate-900 text-xs px-3 py-2 h-10 rounded-none font-mono outline-none"
                     required
                   />
