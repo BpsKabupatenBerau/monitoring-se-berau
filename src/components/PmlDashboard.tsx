@@ -883,7 +883,7 @@ export default function PmlDashboard({
                     onFocus={(e) => e.target.select()}
                     onChange={(e) => {
                       const value = e.target.value;
-                      setAddRutaDidata(value === '' ? 0 : Number(value));
+                      setAddRutaDidata(value === '' ? '' : Number(value));
                     }}
                     className="w-full bg-white border-2 border-slate-900 text-xs px-3 py-2 h-10 rounded-none font-mono outline-none"
                     required
@@ -901,7 +901,7 @@ export default function PmlDashboard({
                     onFocus={(e) => e.target.select()}
                     onChange={(e) => {
                       const value = e.target.value;
-                      setAddUsahaDidata(value === '' ? 0 : Number(value));
+                      setAddUsahaDidata(value === '' ? '' : Number(value));
                     }}
                     className="w-full bg-white border-2 border-slate-900 text-xs px-3 py-2 h-10 rounded-none font-mono outline-none"
                     required
@@ -919,7 +919,7 @@ export default function PmlDashboard({
                     onFocus={(e) => e.target.select()}
                     onChange={(e) => {
                       const value = e.target.value;
-                      setAddStikerDigunakan(value === '' ? 0 : Number(value));
+                      setAddStikerDigunakan(value === '' ? '' : Number(value));
                     }}
                     className="w-full bg-white border-2 border-slate-900 text-xs px-3 py-2 h-10 rounded-none font-mono outline-none"
                     required
@@ -1092,7 +1092,7 @@ export default function PmlDashboard({
                     onFocus={(e) => e.target.select()}
                     onChange={(e) =>{
                       const value = e.target.value;
-                      setEditRutaDidata(value === '' ? 0 : Number(value));
+                      setEditRutaDidata(value === '' ? '' : Number(value));
                     }}
                     className="w-full bg-white border-2 border-slate-900 text-xs px-3 py-2 h-10 rounded-none font-mono outline-none"
                     required
@@ -1110,7 +1110,7 @@ export default function PmlDashboard({
                     onFocus={(e) => e.target.select()}
                     onChange={(e) => {
                       const value = e.target.value;
-                      setEditUsahaDidata(value === '' ? 0 : Number(value));
+                      setEditUsahaDidata(value === '' ? '' : Number(value));
                     }}
                     className="w-full bg-white border-2 border-slate-900 text-xs px-3 py-2 h-10 rounded-none font-mono outline-none"
                     required
@@ -1128,7 +1128,7 @@ export default function PmlDashboard({
                     onFocus={(e) => e.target.select()}
                     onChange={(e) => {
                       const value = e.target.value;
-                      setEditStikerDigunakan(value === '' ? 0 : Number(value));
+                      setEditStikerDigunakan(value === '' ? '' : Number(value));
                     }}
                     className="w-full bg-white border-2 border-slate-900 text-xs px-3 py-2 h-10 rounded-none font-mono outline-none"
                     required
