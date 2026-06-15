@@ -880,6 +880,7 @@ export default function PmlDashboard({
                     min="0"
                     placeholder="Contoh: 15 Ruta"
                     value={addRutaDidata}
+                    onFocus={(e) => e.target.select()}
                     onChange={(e) => {
                       const value = e.target.value;
                       setAddRutaDidata(value === '' ? 0 : Number(value));
@@ -897,6 +898,7 @@ export default function PmlDashboard({
                     min="0"
                     placeholder="Contoh: 10 Usaha"
                     value={addUsahaDidata}
+                    onFocus={(e) => e.target.select()}
                     onChange={(e) => {
                       const value = e.target.value;
                       setAddUsahaDidata(value === '' ? 0 : Number(value));
@@ -914,6 +916,7 @@ export default function PmlDashboard({
                     min="0"
                     placeholder="Contoh: 10 Stiker"
                     value={addStikerDigunakan || ''}
+                    onFocus={(e) => e.target.select()}
                     onChange={(e) => {
                       const value = e.target.value;
                       setAddStikerDigunakan(value === '' ? 0 : Number(value));
@@ -1086,6 +1089,7 @@ export default function PmlDashboard({
                     type="number"
                     min="0"
                     value={editRutaDidata}
+                    onFocus={(e) => e.target.select()}
                     onChange={(e) =>{
                       const value = e.target.value;
                       setEditRutaDidata(value === '' ? 0 : Number(value));
@@ -1103,6 +1107,7 @@ export default function PmlDashboard({
                     type="number"
                     min="0"
                     value={editUsahaDidata}
+                    onFocus={(e) => e.target.select()}
                     onChange={(e) => {
                       const value = e.target.value;
                       setEditUsahaDidata(value === '' ? 0 : Number(value));
@@ -1120,6 +1125,7 @@ export default function PmlDashboard({
                     type="number"
                     min="0"
                     value={editStikerDigunakan || ''}
+                    onFocus={(e) => e.target.select()}
                     onChange={(e) => {
                       const value = e.target.value;
                       setEditStikerDigunakan(value === '' ? 0 : Number(value));
