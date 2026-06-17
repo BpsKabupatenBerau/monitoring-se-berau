@@ -7,6 +7,51 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { User, Plot, DailySubmission, Issue } from './types';
 import * as db from './lib/supabaseService';
 
+// ─── Derive Issues from Submissions ──────────────────────────────────────────
+/**
+ * Issues are no longer stored in a separate kendala_lapangan table.
+ * They are derived on-the-fly from laporan_harian rows where ada_kendala = true.
+ */
+function deriveIssues(
+  submissions: DailySubmission[],
+  users: User[],
+  plots: Plot[]
+): Issue[] {
+  const userMap  = new Map(users.map(u => [u.id, u]));
+  const plotMap  = new Map(plots.map(p => [p.id, p]));
+
+  return submissions
+    .filter(s => s.issueIndicator && s.issueDescription?.trim())
+    .map((s): Issue => {
+      const ppl  = userMap.get(s.pplId);
+      const plot = plotMap.get(s.plotId);
+      const areaLabel = plot
+        ? `${plot.district} - ${plot.village} - ${plot.subSls}`
+        : s.plotId;
+
+      // Resolution is tracked via resolutionNotes (mapped from laporan_harian.catatan).
+      // Format: 'RESOLVED: <supervisor notes>' written by updateIssueStatus().
+      const isResolved = s.resolutionNotes?.startsWith('RESOLVED:') ?? false;
+      const resolvedNote = isResolved
+        ? s.resolutionNotes!.slice('RESOLVED:'.length).trim()
+        : undefined;
+
+      return {
+        id:              s.id,
+        submissionId:    s.id,
+        pplId:           s.pplId,
+        pplName:         ppl?.name ?? 'Unknown',
+        plotId:          s.plotId,
+        areaLabel,
+        date:            s.date,
+        description:     s.issueDescription,
+        status:          isResolved ? 'RESOLVED' : 'OPEN',
+        resolutionNotes: resolvedNote,
+        resolvedAt:      isResolved ? s.lastModifiedTimestamp : undefined,
+      };
+    });
+}
+
 import PplDashboard from './components/PplDashboard';
 import PmlDashboard from './components/PmlDashboard';
 import RegCoDashboard from './components/RegCoDashboard';
@@ -46,7 +91,7 @@ function generateDateRange(startDate: string, endDate: string): { value: string;
 }
 
 // Census operation period: June 1 – September 30, 2026
-const CENSUS_DATES = generateDateRange('2026-06-01', '2026-09-30');
+const CENSUS_DATES = generateDateRange('2026-06-15', '2026-09-30');
 
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -54,7 +99,6 @@ export default function App() {
   const [users, setUsers] = useState<User[]>([]);
   const [plots, setPlots] = useState<Plot[]>([]);
   const [submissions, setSubmissions] = useState<DailySubmission[]>([]);
-  const [issues, setIssues] = useState<Issue[]>([]);
   const [dbLoading, setDbLoading] = useState<boolean>(true);
   const [dbError, setDbError] = useState<string | null>(null);
 
@@ -71,8 +115,8 @@ export default function App() {
 
     const today = new Date().toISOString().split('T')[0];
 
-    if (today < '2026-06-01')
-      return '2026-06-01';
+    if (today < '2026-06-15')
+      return '2026-06-15';
 
     if (today > '2026-09-30')
       return '2026-09-30';
@@ -106,7 +150,6 @@ export default function App() {
       setUsers([]);
       setPlots([]);
       setSubmissions([]);
-      setIssues([]);
       return () => {};
     }
 
@@ -115,24 +158,21 @@ export default function App() {
       setDbError(null);
 
       try {
-        const [fetchedUsers, fetchedPlots, fetchedSubs, fetchedIssues] = await Promise.all([
+        const [fetchedUsers, fetchedPlots, fetchedSubs] = await Promise.all([
           db.fetchUsers(),
           db.fetchPlots(),
           db.fetchSubmissions(),
-          db.fetchIssues(),
         ]);
 
         setUsers(fetchedUsers);
         setPlots(fetchedPlots);
         setSubmissions(fetchedSubs);
-        setIssues(fetchedIssues);
 
         // Subscribe to realtime changes
         unsubscribe = db.subscribeToChanges({
           onUsersChange:       setUsers,
           onPlotsChange:       setPlots,
           onSubmissionsChange: setSubmissions,
-          onIssuesChange:      setIssues,
         });
 
       } catch (err: unknown) {
@@ -142,7 +182,6 @@ export default function App() {
         setUsers([]);
         setPlots([]);
         setSubmissions([]);
-        setIssues([]);
       } finally {
         setDbLoading(false);
       }
@@ -151,57 +190,31 @@ export default function App() {
     initSupabase();
     return () => { if (unsubscribe) unsubscribe(); };
   }, [currentUser?.id]);
+
+  // ─── Computed Issues (derived from submissions) ────────────────────────────
+  // Issues are now derived from laporan_harian rows with ada_kendala = true.
+  // No separate state needed — this recalculates whenever submissions change.
+  const issues = deriveIssues(submissions, users, plots);
+
   // Submission Handlers ───────────────────────────────────────────────────
   const handleAddSubmission = useCallback(async (newSub: Omit<DailySubmission, 'id' | 'timestamp'>) => {
-    const created = await db.createSubmission(newSub);
-    if (created && newSub.issueIndicator) {
-      const plotObj = plots.find(p => p.id === newSub.plotId);
-      const pplObj  = users.find(u => u.id === newSub.pplId);
-      await db.createIssue({
-        submissionId: created.id,
-        pplId:        newSub.pplId,
-        pplName:      pplObj?.name ?? 'Unknown',
-        plotId:       newSub.plotId,
-        areaLabel:    plotObj ? `${plotObj.district} - ${plotObj.village} - ${plotObj.subSls}` : 'Unknown SLS',
-        date:         newSub.date,
-        description:  newSub.issueDescription,
-        status:       'OPEN',
-      });
-    }
+    await db.createSubmission(newSub);
   }, [plots, users]);
 
   const handleUpdateSubmission = useCallback(async (updatedSub: DailySubmission) => {
     await db.updateSubmission(updatedSub);
-
-    const preExisting = issues.find(i => i.submissionId === updatedSub.id);
-    if (updatedSub.issueIndicator) {
-      const plotObj = plots.find(p => p.id === updatedSub.plotId);
-      const pplObj  = users.find(u => u.id === updatedSub.pplId);
-      if (!preExisting) {
-        await db.createIssue({
-          submissionId: updatedSub.id,
-          pplId:        updatedSub.pplId,
-          pplName:      pplObj?.name ?? 'Unknown',
-          plotId:       updatedSub.plotId,
-          areaLabel:    plotObj ? `${plotObj.district} - ${plotObj.village} - ${plotObj.subSls}` : 'Unknown SLS',
-          date:         updatedSub.date,
-          description:  updatedSub.issueDescription,
-          status:       'OPEN',
-        });
-      }
-    } else if (preExisting) {
-      await db.deleteIssueBySubmission(updatedSub.id);
-    }
-  }, [issues, plots, users]);
+  }, [plots, users]);
 
   const handleDeleteSubmission = useCallback(async (id: string) => {
     await db.deleteSubmission(id);
-    await db.deleteIssueBySubmission(id);
   }, []);
 
   // ─── Issue Handler ─────────────────────────────────────────────────────────
   const handleUpdateIssueStatus = useCallback(async (id: string, status: 'OPEN' | 'RESOLVED', notes?: string) => {
     await db.updateIssueStatus(id, status, notes);
+    // Refresh submissions so the updated catatan propagates to derived issues
+    const refreshed = await db.fetchSubmissions();
+    setSubmissions(refreshed);
   }, []);
 
   // ─── User Management ───────────────────────────────────────────────────────

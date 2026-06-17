@@ -46,6 +46,7 @@ export interface DailySubmission {
   status: MonitoringStatus;
   issueIndicator: boolean;
   issueDescription: string;
+  resolutionNotes?: string;  // catatan field: 'RESOLVED: <notes>' when resolved
   timestamp: string;       // ISO Timestamp
   lastModifiedTimestamp?: string; // last modification timestamp for audit trail
 }

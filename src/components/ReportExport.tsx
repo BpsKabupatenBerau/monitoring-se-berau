@@ -65,8 +65,8 @@ export default function ReportExport({
   const [filterStatus, setFilterStatus] = useState<MonitoringStatus | ''>('');
 
   // Chart Date Range state
-  const [chartStartDate, setChartStartDate] = useState('2026-06-01');
-  const [chartEndDate, setChartEndDate] = useState('2026-06-07');
+  const [chartStartDate, setChartStartDate] = useState('2026-06-15');
+  const [chartEndDate, setChartEndDate] = useState('2026-09-30');
 
   // 1. Calculate REAL-TIME status for each plot in DB
   const plotsWithDbStatus = plots.map(plot => {
@@ -87,13 +87,10 @@ export default function ReportExport({
     
     // Check if any is completed
     const isCompleted = plotSubs.some(s => s.status === 'COMPLETED');
-    const isBlocked = plotSubs.some(s => s.status === 'BLOCKED');
     
     let resolvedStatus: MonitoringStatus = 'IN_PROGRESS';
     if (isCompleted) {
       resolvedStatus = 'COMPLETED';
-    } else if (isBlocked) {
-      resolvedStatus = 'BLOCKED';
     } else {
       resolvedStatus = latestSub.status;
     }
@@ -512,7 +509,7 @@ export default function ReportExport({
                   <p className="text-2xl">📊</p>
                   <p className="font-mono text-slate-500 text-xs uppercase font-bold">Tidak Ada Data Di Rentang Ini</p>
                   <p className="font-sans text-[11px] text-slate-400 max-w-sm">
-                    Silakan tentukan atau geser rentang tanggal (misalnya mulai tanggal 2026-06-01) untuk mengamati diagram.
+                    Silakan tentukan atau geser rentang tanggal (misalnya mulai tanggal 2026-06-15) untuk mengamati diagram.
                   </p>
                 </div>
               ) : (

@@ -557,59 +557,6 @@ function rowToIssue(row: KendalaLapanganRow): Issue {
   };
 }
 
-export async function fetchIssues(): Promise<Issue[]> {
-  const { data, error } = await supabase
-    .from('kendala_lapangan')
-    .select('*')
-    .order('created_at', { ascending: false });
-
-  if (error) {
-    console.error('[fetchIssues]', error.message);
-    return [];
-  }
-  return (data as KendalaLapanganRow[]).map(rowToIssue);
-}
-
-export async function createIssue(issue: Omit<Issue, 'id'>): Promise<void> {
-  const legacyId = `issue_${Date.now()}`;
-  const { error } = await supabase.from('kendala_lapangan').insert({
-    legacy_id:         legacyId,
-    laporan_legacy_id: issue.submissionId,
-    ppl_legacy_id:     issue.pplId,
-    ppl_nama:          issue.pplName,
-    plot_legacy_id:    issue.plotId,
-    area_label:        issue.areaLabel,
-    tanggal:           issue.date,
-    deskripsi:         issue.description,
-    status_kendala:    mapStatusKendalaToDb(issue.status),
-  });
-  if (error) console.error('[createIssue]', error.message);
-}
-
-export async function updateIssueStatus(
-  legacyId: string,
-  status: 'OPEN' | 'RESOLVED',
-  notes?: string
-): Promise<void> {
-  const { error } = await supabase
-    .from('kendala_lapangan')
-    .update({
-      status_kendala: mapStatusKendalaToDb(status),
-      tindak_lanjut:  notes ?? null,
-      resolved_at:    status === 'RESOLVED' ? new Date().toISOString() : null,
-    })
-    .eq('legacy_id', legacyId);
-  if (error) console.error('[updateIssueStatus]', error.message);
-}
-
-export async function deleteIssueBySubmission(submissionLegacyId: string): Promise<void> {
-  const { error } = await supabase
-    .from('kendala_lapangan')
-    .delete()
-    .eq('laporan_legacy_id', submissionLegacyId);
-  if (error) console.error('[deleteIssueBySubmission]', error.message);
-}
-
 // ─────────────────────────────────────────────────────────────────────────────
 // BOOTSTRAP (seed initial data if tables are empty)
 // ─────────────────────────────────────────────────────────────────────────────

@@ -1,0 +1,143 @@
+-- WARNING: This schema is for context only and is not meant to be run.
+-- Table order and constraints may not be valid for execution.
+
+CREATE TABLE public.pengguna (
+  id uuid NOT NULL,
+  email text UNIQUE,
+  nama_lengkap text NOT NULL,
+  nomor_hp text,
+  peran USER-DEFINED NOT NULL DEFAULT 'PPL'::peran_pengguna,
+  status USER-DEFINED NOT NULL DEFAULT 'AKTIF'::status_pengguna,
+  created_at timestamp with time zone NOT NULL DEFAULT now(),
+  updated_at timestamp with time zone NOT NULL DEFAULT now(),
+  legacy_id text UNIQUE,
+  username text UNIQUE,
+  kecamatan text,
+  pml_legacy_id text,
+  korwil_legacy_id text,
+  alokasi_stiker integer DEFAULT 0,
+  CONSTRAINT pengguna_pkey PRIMARY KEY (id),
+  CONSTRAINT pengguna_id_fkey FOREIGN KEY (id) REFERENCES auth.users(id)
+);
+CREATE TABLE public.penugasan_korwil_pml (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  korwil_id uuid NOT NULL,
+  pml_id uuid NOT NULL,
+  catatan text,
+  created_at timestamp with time zone NOT NULL DEFAULT now(),
+  CONSTRAINT penugasan_korwil_pml_pkey PRIMARY KEY (id),
+  CONSTRAINT penugasan_korwil_pml_korwil_id_fkey FOREIGN KEY (korwil_id) REFERENCES public.pengguna(id),
+  CONSTRAINT penugasan_korwil_pml_pml_id_fkey FOREIGN KEY (pml_id) REFERENCES public.pengguna(id)
+);
+CREATE TABLE public.penugasan_pml_ppl (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  pml_id uuid NOT NULL,
+  ppl_id uuid NOT NULL,
+  catatan text,
+  created_at timestamp with time zone NOT NULL DEFAULT now(),
+  CONSTRAINT penugasan_pml_ppl_pkey PRIMARY KEY (id),
+  CONSTRAINT penugasan_pml_ppl_pml_id_fkey FOREIGN KEY (pml_id) REFERENCES public.pengguna(id),
+  CONSTRAINT penugasan_pml_ppl_ppl_id_fkey FOREIGN KEY (ppl_id) REFERENCES public.pengguna(id)
+);
+CREATE TABLE public.plot_wilayah (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  idsubsls text NOT NULL UNIQUE,
+  kecamatan text NOT NULL,
+  desa text NOT NULL,
+  sls text,
+  sub_sls text,
+  pml_id uuid,
+  ppl_id uuid,
+  korwil_id uuid,
+  aktif boolean NOT NULL DEFAULT true,
+  catatan text,
+  created_at timestamp with time zone NOT NULL DEFAULT now(),
+  updated_at timestamp with time zone NOT NULL DEFAULT now(),
+  legacy_id text UNIQUE,
+  pml_legacy_id text,
+  ppl_legacy_id text,
+  korwil_legacy_id text,
+  nama_sls text,
+  target_prelist integer NOT NULL DEFAULT 0 CHECK (target_prelist >= 0),
+  CONSTRAINT plot_wilayah_pkey PRIMARY KEY (id),
+  CONSTRAINT plot_wilayah_pml_id_fkey FOREIGN KEY (pml_id) REFERENCES public.pengguna(id),
+  CONSTRAINT plot_wilayah_ppl_id_fkey FOREIGN KEY (ppl_id) REFERENCES public.pengguna(id),
+  CONSTRAINT plot_wilayah_korwil_id_fkey FOREIGN KEY (korwil_id) REFERENCES public.pengguna(id)
+);
+CREATE TABLE public.laporan_harian (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  tanggal_laporan date NOT NULL,
+  pml_id uuid NOT NULL,
+  ppl_id uuid NOT NULL,
+  korwil_id uuid NOT NULL,
+  status_laporan USER-DEFINED NOT NULL DEFAULT 'BELUM_MULAI'::status_laporan_harian,
+  capaian_harian integer NOT NULL DEFAULT 0 CHECK (capaian_harian >= 0),
+  ada_kendala boolean NOT NULL DEFAULT false,
+  deskripsi_kendala text,
+  dibuat_oleh uuid NOT NULL,
+  dibuat_pada timestamp with time zone NOT NULL DEFAULT now(),
+  updated_at timestamp with time zone NOT NULL DEFAULT now(),
+  catatan text,
+  legacy_id text UNIQUE,
+  plot_legacy_id text,
+  ppl_legacy_id text,
+  pml_legacy_id text,
+  korwil_legacy_id text,
+  dibuat_oleh_legacy_id text,
+  ruta_didata_harian integer DEFAULT 0,
+  usaha_didata_harian integer DEFAULT 0,
+  stiker_digunakan_harian integer DEFAULT 0,
+  CONSTRAINT laporan_harian_pkey PRIMARY KEY (id),
+  CONSTRAINT laporan_harian_pml_id_fkey FOREIGN KEY (pml_id) REFERENCES public.pengguna(id),
+  CONSTRAINT laporan_harian_ppl_id_fkey FOREIGN KEY (ppl_id) REFERENCES public.pengguna(id),
+  CONSTRAINT laporan_harian_korwil_id_fkey FOREIGN KEY (korwil_id) REFERENCES public.pengguna(id),
+  CONSTRAINT laporan_harian_dibuat_oleh_fkey FOREIGN KEY (dibuat_oleh) REFERENCES public.pengguna(id)
+);
+CREATE TABLE public.detail_laporan_harian (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  laporan_id uuid NOT NULL,
+  plot_id uuid NOT NULL,
+  status_laporan USER-DEFINED NOT NULL DEFAULT 'BELUM_MULAI'::status_laporan_harian,
+  capaian_harian integer NOT NULL DEFAULT 0 CHECK (capaian_harian >= 0),
+  ada_kendala boolean NOT NULL DEFAULT false,
+  deskripsi_kendala text,
+  created_at timestamp with time zone NOT NULL DEFAULT now(),
+  updated_at timestamp with time zone NOT NULL DEFAULT now(),
+  CONSTRAINT detail_laporan_harian_pkey PRIMARY KEY (id),
+  CONSTRAINT detail_laporan_harian_laporan_id_fkey FOREIGN KEY (laporan_id) REFERENCES public.laporan_harian(id),
+  CONSTRAINT detail_laporan_harian_plot_id_fkey FOREIGN KEY (plot_id) REFERENCES public.plot_wilayah(id)
+);
+CREATE TABLE public.kendala_lapangan (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  laporan_id uuid,
+  detail_laporan_id uuid,
+  jenis_kendala text,
+  deskripsi text NOT NULL,
+  status_kendala USER-DEFINED NOT NULL DEFAULT 'TERBUKA'::status_kendala,
+  tindak_lanjut text,
+  created_at timestamp with time zone NOT NULL DEFAULT now(),
+  updated_at timestamp with time zone NOT NULL DEFAULT now(),
+  legacy_id text UNIQUE,
+  laporan_legacy_id text,
+  ppl_legacy_id text,
+  ppl_nama text,
+  plot_legacy_id text,
+  area_label text,
+  tanggal date,
+  resolved_at timestamp with time zone,
+  CONSTRAINT kendala_lapangan_pkey PRIMARY KEY (id),
+  CONSTRAINT kendala_lapangan_laporan_id_fkey FOREIGN KEY (laporan_id) REFERENCES public.laporan_harian(id),
+  CONSTRAINT kendala_lapangan_detail_laporan_id_fkey FOREIGN KEY (detail_laporan_id) REFERENCES public.detail_laporan_harian(id)
+);
+CREATE TABLE public.log_audit (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  nama_tabel text NOT NULL,
+  record_id uuid NOT NULL,
+  aksi USER-DEFINED NOT NULL,
+  data_lama jsonb,
+  data_baru jsonb,
+  diubah_oleh uuid,
+  diubah_pada timestamp with time zone NOT NULL DEFAULT now(),
+  CONSTRAINT log_audit_pkey PRIMARY KEY (id),
+  CONSTRAINT log_audit_diubah_oleh_fkey FOREIGN KEY (diubah_oleh) REFERENCES public.pengguna(id)
+);

@@ -41,7 +41,7 @@ export default function RegCoDashboard({
 }: RegCoDashboardProps) {
   const myPlots = plots.filter(p => p.assignedKorwilId === currentUser.id);
   const myDistricts = [...new Set(myPlots.map(p => p.district))];
-  console.log('myDistricts', myDistricts);
+  const plotMap = new Map(plots.map(p => [p.id, p]));
 
   // Find PMLs assigned to this district
   const myPmlIds = [...new Set(myPlots.map(p => p.assignedPmlId).filter(Boolean))];
@@ -60,8 +60,18 @@ export default function RegCoDashboard({
   const submissionsToday = regionSubmissions.filter(s => s.date === selectedDate);
 
   // Filter issues in this district
-  const regionIssues = issues.filter(i => myPplIds.includes(i.pplId));
-  const activeIssuesToday = regionIssues.filter(i => i.date === selectedDate && i.status === 'OPEN').length;
+  const regionIssues = regionSubmissions.filter(s => s.issueIndicator && s.issueDescription?.trim()).map(s => {
+    const ppl = users.find( u => u.id === s.pplId);
+    return {
+      id: s.id,
+      pplName: ppl?.name ?? 'Unknown',
+      date: s.date,
+      areaLabel: plotMap.get(s.plotId)?.namaSls ?? plotMap.get(s.plotId)?.idSubsls?? s.plotId,
+      description: s.issueDescription,
+      status: 'OPEN'
+    };
+  });
+  const activeIssuesToday = regionSubmissions.filter(s => s.issueIndicator && s.issueDescription?.trim()).length;
 
   // Calculate compliance statistics for PPLs in this region today
   const ppmReportingCompliance = myPpls.map(ppl => {
@@ -88,6 +98,7 @@ export default function RegCoDashboard({
   // Search filter
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedPmlId, setSelectedPmlId] = useState<string | null>(null);
+  const [selectedPplId, setSelectedPplId] = useState<string | null>(null);
 
   // Find PPLs assigned to specific PML (for filter/drill-down)
   const filteredPplsByPml =
@@ -282,23 +293,47 @@ export default function RegCoDashboard({
                 const pplSubmissions = regionSubmissions.filter(s => s.pplId === ppl.id);
                 
                 // Count units completed total
-                const totalUnits = pplSubmissions.reduce((acc, curr) => acc + curr.completedUnits, 0);
+                const totalRuta = pplSubmissions.reduce((acc, curr) => acc + (curr.rutaDidata ?? 0), 0);
+                const totalUsaha = pplSubmissions.reduce((acc, curr) => acc + (curr.usahaDidata ?? 0), 0);
+                const totalStiker = pplSubmissions.reduce((acc, curr) => acc + (curr.stikerDigunakan ?? 0), 0);
 
                 // Supervisor name
                 const assignedPlot = myPlots.find( p => p.assignedPplId === ppl.id);
                 const supervisor = assignedPlot ? myPmls.find(p => p.id === assignedPlot.assignedPmlId): undefined;
 
                 return (
-                  <div key={ppl.id} className="p-3 bg-slate-55 border border-slate-100/80 rounded-xl hover:bg-slate-50 hover:shadow-xs transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                  <button key={ppl.id} onClick={() => setSelectedPplId(selectedPplId === ppl.id ? null : ppl.id)} 
+                  className={`w-full text-left p-3 border rounded-xl transition-all ${selectedPplId === ppl.id ? 'border-indigo-400 bg-indigo-50'
+                    : 'border-slate-100 hover:bg-slate-50 text-slate-700'}`}>
                     <div className="space-y-1">
                       <div className="flex items-center gap-2">
                         <span className={`w-2 h-2 rounded-full ${isCompliant ? 'bg-emerald-500' : 'bg-rose-500'}`} />
                         <h4 className="font-semibold text-slate-800 text-sm">{ppl.name}</h4>
                         <span className="text-[9px] font-mono text-slate-400">PML: {supervisor ? supervisor.name : 'Unknown'}</span>
                       </div>
-                      <p className="text-xs text-slate-500">
-                        Total {pplPlots.length} SLS/Sub-SLS Ditugaskan | Estimasi Terdata: <span className="font-bold text-slate-700">{totalUnits} Unit</span>
-                      </p>
+                      <div className="text-xs text-slate-500 space-y-1">
+                        <div>Total {pplPlots.length} SLS/Sub-SLS Ditugaskan</div> 
+                        <div className="flex gap-3 flex-wrap">
+                          <span>
+                            Ruta:
+                            <strong className="text-slate-800 ml-1">
+                              {totalRuta}
+                            </strong>
+                          </span>
+                          <span>
+                            Usaha:
+                            <strong className="text-slate-800 ml-1">
+                              {totalUsaha}
+                            </strong>
+                          </span>
+                          <span>
+                            Stiker:
+                            <strong className="text-slate-800 ml-1">
+                              {totalStiker}
+                            </strong>
+                          </span>
+                        </div>
+                      </div>
                     </div>
 
                     <div className="flex items-center justify-between sm:justify-end gap-3 border-t sm:border-t-0 pt-2 sm:pt-0">
@@ -310,13 +345,93 @@ export default function RegCoDashboard({
                         {isCompliant ? '✓ SUDAH MELAPORKAN' : '✗ BELUM LAPOR HARI INI'}
                       </span>
                     </div>
-                  </div>
+                  </button>
                 );
               })}
           </div>
         </div>
-
       </div>
+
+      {/* Detail PPL */}
+      {selectedPplId && (
+        <div className="bg-white rounded-2xl border border-slate-100 p-5 shadow-sm">
+          {(() => {const selectedPpl = myPpls.find(p => p.id === selectedPplId);
+          
+          const pplSubmissions = regionSubmissions.filter(
+            s => s.pplId === selectedPplId)
+            .sort((a, b) => b.date.localeCompare(a.date)
+          );
+          
+          const totalRuta = pplSubmissions.reduce(
+            (a, b) => a + (b.rutaDidata ?? 0), 0
+          );
+          
+          const totalUsaha = pplSubmissions.reduce(
+            (a, b) => a + (b.usahaDidata ?? 0), 0
+          );
+          
+          const totalStiker = pplSubmissions.reduce(
+            (a, b) => a + (b.stikerDigunakan ?? 0), 0
+          );
+
+          return (
+            <>
+              <div className="border-b pb-3 mb-4">
+                <h2 className="font-bold text-lg">  Riwayat Laporan PPL </h2>
+                <p className="text-sm text-slate-500"> {selectedPpl?.name} </p>
+              </div>
+              
+              <div className="grid grid-cols-4 gap-4 mb-5">
+                <div className="geo-card p-3">
+                  <p className="text-xs"> Total Laporan </p>
+                  <p className="text-2xl font-bold"> {pplSubmissions.length} </p>
+                </div>
+                <div className="geo-card p-3">
+                  <p className="text-xs"> Ruta </p>
+                  <p className="text-2xl font-bold"> {totalRuta} </p>
+                </div>
+                <div className="geo-card p-3">
+                  <p className="text-xs"> Usaha </p>
+                  <p className="text-2xl font-bold"> {totalUsaha} </p>
+                </div>
+                <div className="geo-card p-3">
+                  <p className="text-xs"> Stiker </p>
+                  <p className="text-2xl font-bold"> {totalStiker} </p>
+                </div>
+              </div>
+
+            <div className="overflow-auto max-h-[400px]">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b">
+                    <th className="text-left py-2"> Tanggal </th>
+                    <th className="text-left py-2"> Wilayah</th>
+                    <th className="text-left py-2"> Status </th>
+                    <th className="text-right py-2"> Ruta </th>
+                    <th className="text-right py-2"> Usaha </th>
+                    <th className="text-right py-2"> Stiker </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {pplSubmissions.map(sub => (
+                    <tr key={sub.id} className="border-b">
+                      <td className="py-2"> {sub.date} </td>
+                      <td className="py-2">{plotMap.get(sub.plotId)?.namaSls ?? plotMap.get(sub.plotId)?.idSubsls ?? sub.plotId} </td>
+                      <td className="py-2"> {sub.status} </td>
+                      <td className="text-right py-2"> {sub.rutaDidata ?? 0} </td>
+                      <td className="text-right py-2"> {sub.usahaDidata ?? 0} </td>
+                      <td className="text-right py-2"> {sub.stikerDigunakan ?? 0} </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </>
+        );
+      })()}
+    </div>
+  )}
+
 
       {/* Region issues log */}
       <div className="bg-white rounded-2xl border border-slate-100 p-5 shadow-sm space-y-4">
