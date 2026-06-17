@@ -637,7 +637,7 @@ export default function PmlDashboard({
                                     Hasil Terdata: 
                                     <div className="grid grid-cols-3 gap-2 text-[10px]">
                                       <div>
-                                        Ruta: <span className="font-black"> {sub.rutaDidata ?? 0} </span>
+                                        Keluarga: <span className="font-black"> {sub.rutaDidata ?? 0} </span>
                                       </div>
                                       <div>
                                         Usaha: <span className="font-black"> {sub.usahaDidata ?? 0} </span>
@@ -873,12 +873,12 @@ export default function PmlDashboard({
                 {/* 3. Hasil Pendataan */}
                 <div className="space-y-1.5">
                   <label className="text-[10px] font-black text-slate-900 uppercase tracking-wider block">
-                    3. JUMLAH RUTA SELESAI DICACAH HARI INI <span className="text-rose-505">*</span>
+                    3. JUMLAH KELUARGA SELESAI DICACAH HARI INI (KELUARGA DAN BANGUNAN LAINNYA) <span className="text-rose-505">*</span>
                   </label>
                   <input
                     type="number"
                     min="0"
-                    placeholder="Contoh: 15 Ruta"
+                    placeholder="Contoh: 15 Keluarga"
                     value={addRutaDidata}
                     onFocus={(e) => e.target.select()}
                     onChange={(e) => {
@@ -1083,7 +1083,7 @@ export default function PmlDashboard({
                 {/* 3. Completed units */}
                 <div className="space-y-1.5">
                   <label className="text-[10px] font-black text-slate-900 uppercase tracking-wider block">
-                    JUMLAH RUTA SELESAI DICACAH HARI INI <span className="text-rose-505">*</span>
+                    JUMLAH Keluarga SELESAI DICACAH HARI INI <span className="text-rose-505">*</span>
                   </label>
                   <input
                     type="number"

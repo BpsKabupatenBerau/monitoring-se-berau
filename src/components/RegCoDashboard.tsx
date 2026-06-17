@@ -95,6 +95,11 @@ export default function RegCoDashboard({
     ? Math.round((completedPlots / totalRegionPlots) * 100) 
     : 0;
 
+  // Stiker
+  const allocatedSticker = myPpls.reduce((sum, ppl) => sum + (ppl.alokasiStiker ?? 0), 0);
+  const usedSticker = regionSubmissions.reduce((sum, s) => sum + (s.stikerDigunakan ?? 0), 0);
+  const remainingSticker = allocatedSticker - usedSticker;
+
   // Search filter
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedPmlId, setSelectedPmlId] = useState<string | null>(null);
@@ -135,7 +140,7 @@ export default function RegCoDashboard({
         </div>
       </div>
 
-      {/* KPI Stats Panel - matching PRD format! */}
+      {/* KPI Stats Panel */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4" id="regco-kpis">
         <div className="geo-card p-4 shadow-none">
           <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest leading-none mb-1">PML Aktif</p>
@@ -160,13 +165,17 @@ export default function RegCoDashboard({
             {notReportedTodayCount} Petugas Belum Lapor
           </span>
         </div>
-
         <div className="geo-card p-4 shadow-none">
           <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest leading-none mb-1">Kendala Baru</p>
           <p className="text-3xl font-display font-black text-rose-600">{activeIssuesToday}</p>
           <span className="text-[10px] text-rose-500 font-mono block mt-1 font-bold uppercase">
             Memerlukan Intervensi
           </span>
+        </div>
+        <div className="geo-card p-4 shadow-none">
+          <p className="text-[10px] font-bold text-state-500 uppercase tracking-widest leading-none mb-1">Sisa Stiker</p>
+          <p className="text-3xl font-display font-black text-indigo-600">{remainingSticker}</p>
+          <span className="text-[10px] text-slate-500 block mt-1 font-mono">{usedSticker}/{allocatedSticker} digunakan</span>
         </div>
       </div>
 
@@ -186,7 +195,7 @@ export default function RegCoDashboard({
             <span className="text-slate-400">100%</span>
           </div>
           <div className="bg-slate-200 border border-slate-900 h-3 rounded-none overflow-hidden">
-            <div className="bg-indigo-650 h-full transition-all duration-500" style={{ width: `${progressPct}%` }} />
+            <div className="bg-indigo-600 h-full transition-all duration-500" style={{ width: `${progressPct}%` }} />
           </div>
         </div>
       </div>
@@ -240,7 +249,7 @@ export default function RegCoDashboard({
                   <div className="flex items-center justify-between w-full">
                     <div>
                       <h4 className="font-semibold text-sm text-slate-800">{pml.name}</h4>
-                      <p className="text-[10px] text-slate-400 font-mono">Supervisor PML</p>
+                      <p className="text-[10px] text-slate-400 font-mono">PML</p>
                     </div>
                     <ChevronRight size={14} className="text-slate-400" />
                   </div>
@@ -296,6 +305,8 @@ export default function RegCoDashboard({
                 const totalRuta = pplSubmissions.reduce((acc, curr) => acc + (curr.rutaDidata ?? 0), 0);
                 const totalUsaha = pplSubmissions.reduce((acc, curr) => acc + (curr.usahaDidata ?? 0), 0);
                 const totalStiker = pplSubmissions.reduce((acc, curr) => acc + (curr.stikerDigunakan ?? 0), 0);
+                const allocatedSticker = ppl.alokasiStiker ?? 0;
+                const remainingSticker = allocatedSticker - totalStiker;
 
                 // Supervisor name
                 const assignedPlot = myPlots.find( p => p.assignedPplId === ppl.id);
@@ -315,7 +326,7 @@ export default function RegCoDashboard({
                         <div>Total {pplPlots.length} SLS/Sub-SLS Ditugaskan</div> 
                         <div className="flex gap-3 flex-wrap">
                           <span>
-                            Ruta:
+                            Keluarga:
                             <strong className="text-slate-800 ml-1">
                               {totalRuta}
                             </strong>
@@ -330,6 +341,12 @@ export default function RegCoDashboard({
                             Stiker:
                             <strong className="text-slate-800 ml-1">
                               {totalStiker}
+                            </strong>
+                          </span>
+                          <span>
+                            Sisa Stiker:
+                            <strong className="text-slate-800 ml-1">
+                              {remainingSticker}
                             </strong>
                           </span>
                         </div>
@@ -387,7 +404,7 @@ export default function RegCoDashboard({
                   <p className="text-2xl font-bold"> {pplSubmissions.length} </p>
                 </div>
                 <div className="geo-card p-3">
-                  <p className="text-xs"> Ruta </p>
+                  <p className="text-xs"> Keluarga </p>
                   <p className="text-2xl font-bold"> {totalRuta} </p>
                 </div>
                 <div className="geo-card p-3">
@@ -407,22 +424,29 @@ export default function RegCoDashboard({
                     <th className="text-left py-2"> Tanggal </th>
                     <th className="text-left py-2"> Wilayah</th>
                     <th className="text-left py-2"> Status </th>
-                    <th className="text-right py-2"> Ruta </th>
+                    <th className="text-right py-2"> Keluarga </th>
                     <th className="text-right py-2"> Usaha </th>
                     <th className="text-right py-2"> Stiker </th>
                   </tr>
                 </thead>
                 <tbody>
-                  {pplSubmissions.map(sub => (
+                  {pplSubmissions.map(sub => {
+                    const plot = plotMap.get(sub.plotId);
+                    return (
                     <tr key={sub.id} className="border-b">
                       <td className="py-2"> {sub.date} </td>
-                      <td className="py-2">{plotMap.get(sub.plotId)?.namaSls ?? plotMap.get(sub.plotId)?.idSubsls ?? sub.plotId} </td>
+                      <td className="py-2">
+                        <div className="flex flex-col">
+                          <span className="medium">{plot?.village ?? '-'}</span>
+                          <span className="text-xs text-slate-500">{plotMap.get(sub.plotId)?.namaSls ?? plotMap.get(sub.plotId)?.idSubsls}</span>
+                        </div>
+                      </td>
                       <td className="py-2"> {sub.status} </td>
                       <td className="text-right py-2"> {sub.rutaDidata ?? 0} </td>
                       <td className="text-right py-2"> {sub.usahaDidata ?? 0} </td>
                       <td className="text-right py-2"> {sub.stikerDigunakan ?? 0} </td>
                     </tr>
-                  ))}
+                  )})}
                 </tbody>
               </table>
             </div>
@@ -439,7 +463,7 @@ export default function RegCoDashboard({
           <h2 className="font-display font-semibold text-slate-800 flex items-center gap-2">
             <ShieldAlert size={18} className="text-rose-500 hover:rotate-12 transition-transform" /> Kendala Aktif di Kecamatan {myDistricts.join(', ')}
           </h2>
-          <p className="text-[11px] text-slate-400 mt-0.5">Daftar kendala lapangan yang dilaporkan oleh petugas agar diketahu oleh Korwil.</p>
+          <p className="text-[11px] text-slate-400 mt-0.5">Daftar kendala lapangan yang dilaporkan oleh petugas agar diketahui oleh Korwil.</p>
         </div>
 
         {regionIssues.length === 0 ? (

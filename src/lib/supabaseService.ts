@@ -103,6 +103,7 @@ interface PenggunaRow {
   username: string | null;
   created_at: string;
   updated_at: string;
+  alokasi_stiker: number | null;
 }
 
 function rowToUser(row: PenggunaRow): User {
@@ -112,7 +113,8 @@ function rowToUser(row: PenggunaRow): User {
     name:     row.nama_lengkap,
     role:     mapPeran(row.peran),
     email:    row.email ?? undefined,
-    district: row.kecamatan ?? undefined
+    district: row.kecamatan ?? undefined,
+    alokasiStiker: row.alokasi_stiker ?? 0,
     };
 }
 
@@ -714,10 +716,6 @@ export function subscribeToChanges(callbacks: {
     .on('postgres_changes', { event: '*', schema: 'public', table: 'laporan_harian' }, async () => {
       const submissions = await fetchSubmissions();
       callbacks.onSubmissionsChange(submissions);
-    })
-    .on('postgres_changes', { event: '*', schema: 'public', table: 'kendala_lapangan' }, async () => {
-      const issues = await fetchIssues();
-      callbacks.onIssuesChange(issues);
     })
     .subscribe();
 

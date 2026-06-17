@@ -15,6 +15,7 @@ export interface User {
   district?: string;       // For Regional Coordinator, PML, PPL
   pmlId?: string;          // For PPL to point to their supervisor
   regCoId?: string;        // For PML to point to their Coordinator
+  alokasiStiker?: number;
 }
 
 export interface Plot {
