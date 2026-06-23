@@ -550,8 +550,7 @@ export async function deleteSubmission(legacyId: string): Promise<void> {
   const { error } = await supabase
     .from('laporan_harian')
     .delete()
-    .eq('legacy_id', legacyId)
-    .select();
+    .eq('legacy_id', legacyId);
 
   if (error) console.error('[deleteSubmission]', error.message);
 }
