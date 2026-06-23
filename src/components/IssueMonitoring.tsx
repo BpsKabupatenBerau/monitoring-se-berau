@@ -62,7 +62,7 @@ export default function IssueMonitoring({
       {/* Title */}
       <div className="geo-card p-5 space-y-1 shadow-none">
         <h1 className="text-xl font-display font-black text-slate-900 flex items-center gap-2 uppercase tracking-tight">
-          <AlertTriangle size={20} className="text-rose-500 shrink-0" /> Pusat Pemantauan Kendala Lapangan
+          <AlertTriangle size={20} className="text-rose-500 shrink-0" /> Monitoring Kendala Lapangan
         </h1>
         <p className="text-slate-500 text-xs font-medium">
           Halaman monitoring untuk melacak hambatan lapangan (penolakan, cuaca ekstrim, kendala transportasi, dll.) yang dialami oleh petugas sensus di lapangan.
@@ -112,10 +112,6 @@ export default function IssueMonitoring({
             <Search size={12} className="absolute left-2.5 top-3 text-slate-400" />
           </div>
         </div>
-
-        <span className="text-[10px] uppercase font-mono font-bold text-slate-550">
-          Status Sinkronisasi: Aktif
-        </span>
       </div>
 
       {/* Issues list rendering */}
@@ -184,9 +180,8 @@ export default function IssueMonitoring({
         <div className="bg-white rounded-2xl border border-slate-100 p-5 shadow-sm space-y-4 h-fit">
           <div className="border-b border-slate-100 pb-3">
             <h2 className="font-display font-semibold text-slate-800 flex items-center gap-2">
-              <MessageSquare size={18} className="text-indigo-600" /> Detail &amp; Intervensi Supervisor
+              <MessageSquare size={18} className="text-indigo-600" /> Detail &amp; Intervensi Korwil/Admin
             </h2>
-            <p className="text-[11px] text-slate-400 mt-0.5">Penanganan kendala langsung untuk kesuksesan SE2026.</p>
           </div>
 
           {!selectedIssueId ? (

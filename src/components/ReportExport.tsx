@@ -347,14 +347,11 @@ export default function ReportExport({
       {/* Title Header Card */}
       <div className="geo-card p-5 bg-white flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="space-y-1">
-          <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 bg-slate-900 text-amber-400 font-mono text-[9px] font-black border border-slate-900">
-            BPS DATABASE REPORTING CENTER
-          </div>
           <h1 className="text-xl font-display font-black text-slate-900 flex items-center gap-2 uppercase tracking-tight">
             <FileSpreadsheet size={20} className="text-slate-900" /> Ekspor &amp; Rekapitulasi Laporan SE2026
           </h1>
           <p className="text-slate-500 text-xs font-sans">
-            Evaluasi berkas pelaporan sensus harian, rekapitulasi SLS di pangkalan data secara real-time.
+            Evaluasi berkas pelaporan sensus harian, rekapitulasi SLS secara real-time.
           </p>
         </div>
       </div>
@@ -369,7 +366,7 @@ export default function ReportExport({
               : 'bg-white text-slate-700 hover:text-slate-950 border-transparent hover:bg-slate-50'
           }`}
         >
-          📈 1. Analisis Progress SLS ({progressPercentage}%)
+          📈 1. Progress SLS ({progressPercentage}%)
         </button>
         <button
           onClick={() => setSubTab('export_tool')}
@@ -398,7 +395,7 @@ export default function ReportExport({
               </div>
               <div className="mt-4">
                 <p className="text-3xl font-display font-black text-white">{totalPlots}</p>
-                <p className="text-[10px] font-sans text-slate-400 mt-1 uppercase">ID SLS Terpetakan di Berau</p>
+                <p className="text-[10px] font-sans text-slate-400 mt-1 uppercase">SLS/Sub-SLS</p>
               </div>
             </div>
 
@@ -410,7 +407,7 @@ export default function ReportExport({
               </div>
               <div className="mt-4">
                 <p className="text-3xl font-display font-black text-slate-900">{notStartedCount}</p>
-                <p className="text-[10px] font-sans text-slate-550 mt-1 uppercase">Menunggu Entry Lapangan</p>
+                <p className="text-[10px] font-sans text-slate-550 mt-1 uppercase">SLS/Sub-SLS</p>
               </div>
             </div>
 
@@ -423,7 +420,7 @@ export default function ReportExport({
               <div className="mt-4">
                 <p className="text-3xl font-display font-black text-sky-955">{inProgressCount + blockedCount}</p>
                 <p className="text-[10px] font-sans text-sky-650 mt-1 uppercase">
-                  {inProgressCount} Berjalan • {blockedCount} Terkendala
+                  SLS/Sub-SLS
                 </p>
               </div>
             </div>
@@ -431,12 +428,12 @@ export default function ReportExport({
             {/* Selesai (Completed / Checked) */}
             <div className="geo-card bg-emerald-50 p-4 flex flex-col justify-between border-slate-900">
               <div className="flex items-center justify-between">
-                <span className="text-[10px] font-mono font-bold uppercase text-emerald-800">Selesai (Completed)</span>
+                <span className="text-[10px] font-mono font-bold uppercase text-emerald-800">Selesai</span>
                 <CheckCircle size={14} className="text-emerald-600" />
               </div>
               <div className="mt-4">
                 <p className="text-3xl font-display font-black text-emerald-955">{completedCount}</p>
-                <p className="text-[10px] font-sans text-emerald-650 mt-1 uppercase">Lengkap &amp; Divalidasi PML</p>
+                <p className="text-[10px] font-sans text-emerald-650 mt-1 uppercase">SLS/Sub-SLS</p>
               </div>
             </div>
 
@@ -445,7 +442,7 @@ export default function ReportExport({
           {/* DYNAMIC PROGRESS BAR ACCENT */}
           <div className="geo-card p-5 bg-white space-y-2">
             <div className="flex justify-between items-center text-xs">
-              <span className="font-mono font-bold text-slate-600 uppercase">AKUMULASI PENYELESAIAN BLOK SENSUS (VALIDATED)</span>
+              <span className="font-mono font-bold text-slate-600 uppercase">AKUMULASI PENYELESAIAN SLS/Sub-SLS</span>
               <span className="font-mono font-black text-slate-900 text-sm bg-amber-300 px-2 py-0.5 border border-slate-900">
                 {progressPercentage}% SELESAI
               </span>
@@ -456,7 +453,7 @@ export default function ReportExport({
                 style={{ width: `${progressPercentage}%` }}
               />
               <span className="absolute inset-x-0 inset-y-0 flex items-center justify-center text-[10px] font-mono font-bold text-slate-805">
-                {completedCount} dari {totalPlots} Satuan SLS Selesai Terverifikasi BPS
+                {completedCount} dari {totalPlots} SLS/Sub-SLS Selesai
               </span>
             </div>
           </div>
@@ -465,11 +462,8 @@ export default function ReportExport({
           <div className="geo-card p-5 bg-white space-y-4">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b-2 border-slate-900 pb-3">
               <div className="space-y-0.5">
-                <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 bg-amber-300 text-slate-950 font-mono text-[9px] font-black border border-slate-900">
-                  RECHARTS INTERACTIVE PROGRESSION CHART
-                </div>
                 <h3 className="font-display font-black text-sm text-slate-900 uppercase">
-                  GRAFIK VOLUMETRIK PROGRES SELESAI HARIAN
+                  GRAFIK PROGRES HARIAN
                 </h3>
                 <p className="text-[11px] text-slate-500 font-sans">
                   Jumlah Satuan Unit Terdata (KK) dan total unggahan sesi laporan harian di rentang aktif.
@@ -583,8 +577,7 @@ export default function ReportExport({
             </div>
             
             <div className="text-[10px] text-slate-550 font-mono flex items-center justify-between gap-2.5">
-              <span>💡 Klik pemicu tanggal di kanan atas untuk memfokuskan visualisasi audit.</span>
-              <span className="hidden sm:inline text-amber-600 font-extrabold uppercase">AUTO-SCALE DATABASE</span>
+              <span>💡 Klik tanggal di kanan atas untuk memfokuskan visualisasi audit.</span>
             </div>
           </div>
 
@@ -595,8 +588,7 @@ export default function ReportExport({
             <div className="lg:col-span-8 geo-card bg-white p-5 space-y-4">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b-2 border-slate-900 pb-3">
                 <div className="space-y-0.5">
-                  <h3 className="font-display font-black text-sm text-slate-900 uppercase">REGISTRI PROGRESS SLS FIRESTORE</h3>
-                  <p className="text-[11px] text-slate-500 font-sans">Status terperinci per blok sensus / ID SLS yang terpartisi di basis data.</p>
+                  <h3 className="font-display font-black text-sm text-slate-900 uppercase">PROGRESS SLS-SubSLS</h3>
                 </div>
                 
                 {/* Search box */}
@@ -617,12 +609,12 @@ export default function ReportExport({
                 <table className="w-full text-left border-collapse text-[11px]">
                   <thead>
                     <tr className="bg-slate-900 text-white font-mono uppercase text-[9px] border-b border-slate-900 sticky top-0 z-10">
-                      <th className="py-2.5 px-3">ID SLS</th>
-                      <th className="py-2.5 px-3">Administrasi</th>
+                      <th className="py-2.5 px-3">Kecamatan</th>
+                      <th className="py-2.5 px-3">Kampung/Kelurahan</th>
                       <th className="py-2.5 px-3">RT (Sub-SLS)</th>
-                      <th className="py-2.5 px-3 text-center">Unit Terdata</th>
-                      <th className="py-2.5 px-3 text-center">Sesi Lap</th>
-                      <th className="py-2.5 px-3 text-center">Status AKTUAL</th>
+                      <th className="py-2.5 px-3 text-center">KK Terdata</th>
+                      <th className="py-2.5 px-3 text-center">Jumlah Laporan</th>
+                      <th className="py-2.5 px-3 text-center">Status Saat Ini</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-200">
@@ -640,8 +632,6 @@ export default function ReportExport({
                               return 'bg-emerald-400 text-slate-950 font-black';
                             case 'IN_PROGRESS':
                               return 'bg-blue-400 text-white font-black';
-                            case 'BLOCKED':
-                              return 'bg-rose-450 text-white font-black animate-pulse';
                             case 'NOT_STARTED':
                             default:
                               return 'bg-slate-100 text-slate-500 font-bold border border-slate-300';
@@ -652,29 +642,27 @@ export default function ReportExport({
                           switch (status) {
                             case 'COMPLETED': return 'COMPLETED';
                             case 'IN_PROGRESS': return 'IN PROGRESS';
-                            case 'BLOCKED': return '⚠️ BLOCKED';
                             case 'NOT_STARTED': default: return 'NOT STARTED';
                           }
                         };
 
                         return (
                           <tr key={plot.id} className="hover:bg-slate-50 text-[11px]">
-                            <td className="py-2.5 px-3 font-mono font-bold text-slate-900 whitespace-nowrap">
-                              {plot.id}
-                            </td>
                             <td className="py-2.5 px-3">
                               <div className="font-bold text-slate-900 uppercase">Kec. {plot.district}</div>
-                              <div className="text-[10px] text-slate-500 font-sans">{plot.village} (SLS: {plot.sls})</div>
                             </td>
                             <td className="py-2.5 px-3 font-mono text-slate-600 font-bold">
-                              {plot.subSls}
+                              <div className="text-[10px] text-slate-500 font-sans">{plot.village}</div>
+                            </td>
+                            <td>
+                              <div className="text-[10px] text-slate-500 font-sans">RT {plot.sls}-{plot.subSls}</div>
                             </td>
                             <td className="py-2.5 px-3 text-center font-mono font-bold text-indigo-700 whitespace-nowrap">
                               {plot.totalUnits > 0 ? `+${plot.totalUnits} KK` : '0 KK'}
                             </td>
                             <td className="py-2.5 px-3 text-center font-mono">
                               <span className="bg-slate-100 px-1.5 py-0.5 border border-slate-200 rounded-none text-slate-700">
-                                {plot.subCount}x Entry
+                                {plot.subCount}x Entri
                               </span>
                             </td>
                             <td className="py-2.5 px-3 text-center whitespace-nowrap">
@@ -705,17 +693,17 @@ export default function ReportExport({
               {/* LEDGER CARD */}
               <div className="geo-card bg-white p-5 space-y-4">
                 <div className="border-b-2 border-slate-900 pb-3">
-                  <h3 className="font-display font-black text-sm text-slate-900 uppercase">LOG HARIAN PROGRESS DB</h3>
-                  <p className="text-[10px] text-slate-500 font-sans">Pertambahan volume cacahan hari demi hari.</p>
+                  <h3 className="font-display font-black text-sm text-slate-900 uppercase">LOG HARIAN ENTRI PROGRESS</h3>
+                  <p className="text-[10px] text-slate-500 font-sans">Akumulasi Progress per hari.</p>
                 </div>
 
                 <div className="overflow-x-auto border-2 border-slate-900">
                   <table className="w-full text-left border-collapse text-[10px] font-mono">
                     <thead>
                       <tr className="bg-slate-900 text-white uppercase text-[8px] border-b border-slate-900">
-                        <th className="py-2 px-2">Hari / Tanggal</th>
-                        <th className="py-2 px-1 text-center">Lap</th>
-                        <th className="py-2 px-1 text-right">Unit Terdata</th>
+                        <th className="py-2 px-2">Tanggal</th>
+                        <th className="py-2 px-1 text-center">Laporan</th>
+                        <th className="py-2 px-1 text-right">KK Terdata</th>
                         <th className="py-2 px-1 text-center">Isi</th>
                       </tr>
                     </thead>
@@ -753,26 +741,7 @@ export default function ReportExport({
                     </tbody>
                   </table>
                 </div>
-
-                <div className="bg-amber-100 p-3 border border-amber-300 text-[10px] text-slate-800 space-y-1">
-                  <p className="font-bold uppercase tracking-tight text-[9px] font-mono">INFORMASI PENTING:</p>
-                  <p className="font-sans leading-relaxed">
-                    Setiap transaksi penambahan laporan kemajuan di BPS Berau diproses server-side, didukung sinkronisasi state instan untuk menjamin keandalan data audit.
-                  </p>
-                </div>
               </div>
-
-              {/* DATA INTEGRITY GUARANTEE */}
-              <div className="geo-card bg-slate-900 text-white p-5 space-y-3">
-                <div className="flex items-center gap-2 text-amber-400">
-                  <Database size={16} />
-                  <h4 className="font-display font-black text-xs uppercase tracking-wider">Garansi Integritas Data</h4>
-                </div>
-                <p className="text-[10px] text-slate-350 leading-relaxed font-sans">
-                  Seluruh ID SLS yang tersimpan di basis data Cloud Firestore divalidasi silang menggunakan aturan keamanan (Security Rules) ketat untuk mencegah manipulasi anomali unit cacahan.
-                </p>
-              </div>
-
             </div>
 
           </div>

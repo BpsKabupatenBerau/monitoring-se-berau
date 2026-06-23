@@ -271,6 +271,7 @@ export default function PmlDashboard({
       window.alert('Riwayat laporan dari tanggal sebelumnya tidak dapat dihapus.');
       return;
     }
+    console.log("Calling Delete: ", sub.id);
 
     if (window.confirm('Hapus laporan hari ini? Tindakan ini hanya tersedia pada tanggal laporan yang sedang berjalan.')) {
       onDeleteSubmission(sub.id);

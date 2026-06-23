@@ -74,13 +74,22 @@ import {
   Menu, X,
 } from 'lucide-react';
 
+export function getOperationalToday(): string {
+  return new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'Asia/Singapore',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  }).format(new Date());
+}
+
 // ─── Date Range Helper ────────────────────────────────────────────────────────
 /** Generate all dates between start and end (YYYY-MM-DD format) */
 function generateDateRange(startDate: string, endDate: string): { value: string; label: string }[] {
   const dates: { value: string; label: string }[] = [];
   const start = new Date(startDate);
   const end = new Date(endDate);
-  const today = new Date().toISOString().split('T')[0];
+  const today = getOperationalToday();
 
   for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
     const value = d.toISOString().split('T')[0];
@@ -113,7 +122,7 @@ export default function App() {
     
     if (saved) return saved;
 
-    const today = new Date().toISOString().split('T')[0];
+    const today = getOperationalToday();
 
     if (today < '2026-06-15')
       return '2026-06-15';
@@ -502,7 +511,7 @@ export default function App() {
                 ))}
               </select>
             </div>
-            <button onClick={() => setSelectedDate(new Date().toISOString().split('T')[0])}>
+            <button onClick={() => setSelectedDate(getOperationalToday())}>
               <span className='geo-badge'>Hari Ini</span>
             </button>
           </div>

@@ -346,6 +346,39 @@ export async function deletePlot(legacyId: string): Promise<void> {
   if (error) console.error('[deletePlot]', error.message);
 }
 
+
+//Rank Korwil, PML, and PPL
+export async function getKorwilRanking() {
+  const { data, error } = await supabase.rpc(
+    "get_korwil_ranking"
+  );
+
+  if (error) throw error;
+
+  return data ?? [];
+}
+
+export async function getPmlRanking() {
+  const { data, error } = await supabase.rpc(
+    "get_pml_ranking"
+  );
+
+  if (error) throw error;
+
+  return data ?? [];
+}
+
+export async function getPplRanking() {
+  const { data, error } = await supabase.rpc(
+    "get_ppl_ranking"
+  );
+
+  if (error) throw error;
+
+  return data ?? [];
+}
+
+
 // ─────────────────────────────────────────────────────────────────────────────
 // SUBMISSIONS (laporan_harian)
 // ─────────────────────────────────────────────────────────────────────────────
@@ -517,7 +550,9 @@ export async function deleteSubmission(legacyId: string): Promise<void> {
   const { error } = await supabase
     .from('laporan_harian')
     .delete()
-    .eq('legacy_id', legacyId);
+    .eq('legacy_id', legacyId)
+    .select();
+
   if (error) console.error('[deleteSubmission]', error.message);
 }
 

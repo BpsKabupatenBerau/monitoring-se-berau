@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
 import { 
   Building, 
@@ -18,9 +18,10 @@ import {
   Search,
   Check,
   ChevronRight,
-  ClipboardList
+  ClipboardList,
 } from 'lucide-react';
 import { User, Plot, DailySubmission, Issue } from '../types';
+import {getKorwilRanking, getPmlRanking, getPplRanking } from '../lib/supabaseService'
 
 interface RegCoDashboardProps {
   currentUser: User;
@@ -42,6 +43,7 @@ export default function RegCoDashboard({
   const myPlots = plots.filter(p => p.assignedKorwilId === currentUser.id);
   const myDistricts = [...new Set(myPlots.map(p => p.district))];
   const plotMap = new Map(plots.map(p => [p.id, p]));
+  
 
   // Find PMLs assigned to this district
   const myPmlIds = [...new Set(myPlots.map(p => p.assignedPmlId).filter(Boolean))];
@@ -54,6 +56,131 @@ export default function RegCoDashboard({
   // Filter plots within this district
   const myRegionPlots = myPlots;
   const totalRegionPlots = myRegionPlots.length;
+  
+  const completedSls = myRegionPlots.filter(plot =>
+    submissions.some(
+      s =>
+        s.plotId === plot.id &&
+        s.status === 'COMPLETED'
+    )
+  ).length;
+  
+  const inProgressSls = myRegionPlots.filter(plot =>
+    submissions.some(
+      s =>
+        s.plotId === plot.id &&
+        s.status === 'IN_PROGRESS'
+    )
+  ).length;
+  
+  const notStartedSls = totalRegionPlots - completedSls - inProgressSls;
+
+  const [korwilRanking, setKorwilRanking] = useState<any[]>([]);
+  const [pmlRanking, setPmlRanking] = useState<any[]>([]);
+  const [pplRanking, setPplRanking] = useState<any[]>([]);
+
+  useEffect(() => {
+    const loadRankings = async () => {
+      try {
+        const kr = await getKorwilRanking();
+        const pr = await getPmlRanking();
+        const pl = await getPplRanking();
+        
+        setKorwilRanking(kr);
+        setPmlRanking(pr);
+        setPplRanking(pl);
+      } catch (error) {
+        console.error("Error loading rankings:", error);
+      }
+    };
+    
+    loadRankings();
+  }, []);
+
+  const myKorwilRank = korwilRanking.findIndex(k => k.korwil_id === currentUser.id) + 1;
+  const myPmlRank = pmlRanking.filter(p => p.pml_id && myPmlIds.includes(p.pml_id));
+  const topPmls = myPmlRank.map(pml => ({
+    ...pml,
+    rank: pmlRanking.findIndex(r => r.pml_id === pml.pml_id) + 1
+  })).sort((a,b) => a.rank - b.rank);
+  const myPplRank = pplRanking.filter( p => p.ppl_id && myPplIds.includes(p.ppl_id)).map(p => ({
+    ...p,
+    rank: pplRanking.findIndex(r => r.ppl_id === p.ppl_id) + 1
+  })).sort((a,b) => a.rank - b.rank);
+  const bestPpl = myPplRank[0];
+
+  // //Korwil Rank
+  // const korwils = users.filter(u =>u.role === 'KORWIL');
+  // const korwilRanking = korwils.map(korwil => {
+  //   const korwilPlots = plots.filter(p => p.assignedKorwilId === korwil.id);
+
+  //   const totalSLS = korwilPlots.length;
+  //   const completedSls = korwilPlots.filter(plot =>
+  //     submissions.some(s => s.plotId === plot.id && s.status === 'COMPLETED')
+  //   ).length;
+  //   const inProgressSls = korwilPlots.filter(plot =>
+  //     submissions.some(s => s.plotId === plot.id && s.status === 'IN_PROGRESS')
+  //   ).length;
+  //   const notStartedSls = totalSLS - completedSls - inProgressSls;
+  //   const progressRate = totalSLS > 0 ? Math.round(((completedSls + inProgressSls) / totalSLS) * 100) : 0;
+
+  //   return {
+  //     korwilId: korwil.id,
+  //     korwil: korwil.name,
+  //     progressRate,
+  //     totalSLS,
+  //     completedSls,
+  //     inProgressSls,
+  //     notStartedSls
+  //   };
+  // }).sort((a, b) => b.progressRate - a.progressRate);
+
+  // // Find my rank in korwil ranking
+  // const myRank = korwilRanking.findIndex(k => k.korwilId === currentUser.id) + 1;
+
+  // //PML Ranking
+  // const pmlRanking = myPmls.map(pml => {const pmlPlots = myPlots.filter(p => p.assignedPmlId === pml.id);
+  //   const totalSls = pmlPlots.length;
+
+  //   const completedSls = pmlPlots.filter(plot => submissions.some(s => s.plotId === plot.id && s.status === 'COMPLETED')).length;
+  //   const inProgressSls = pmlPlots.filter(plot => submissions.some(s => s.plotId === plot.id && s.status === 'IN_PROGRESS')).length;
+  //   const notStartedSls = totalSls - completedSls - inProgressSls;
+    
+  //   const progressRate = totalSls > 0 ? Math.round(((completedSls + inProgressSls)/ totalSls) * 100)
+  //   : 0;
+
+  //   return {
+  //     pmlId: pml.id,
+  //     pml: pml.name,
+  //     progressRate,
+  //     totalSls,
+  //     completedSls,
+  //     inProgressSls,
+  //     notStartedSls
+  //   };
+  // }).sort((a, b) => b.progressRate - a.progressRate);
+
+  // //PPL Ranking
+  // const pplRanking = myPpls.map(ppl => {const pplPlots = myPlots.filter(p => p.assignedPmlId === ppl.id);
+  //   const totalSls = pplPlots.length;
+
+  //   const completedSls = pplPlots.filter(plot => submissions.some(s => s.plotId === plot.id && s.status === 'COMPLETED')).length;
+  //   const inProgressSls = pplPlots.filter(plot => submissions.some(s => s.plotId === plot.id && s.status === 'IN_PROGRESS')).length;
+  //   const notStartedSls = totalSls - completedSls - inProgressSls;
+    
+  //   const progressRate = totalSls > 0 ? Math.round(((completedSls + inProgressSls)/ totalSls) * 100)
+  //   : 0;
+
+  //   return {
+  //     pplId: ppl.id,
+  //     ppl: ppl.name,
+  //     progressRate,
+  //     totalSls,
+  //     completedSls,
+  //     inProgressSls,
+  //     notStartedSls
+  //   };
+  // }).sort((a, b) => b.progressRate - a.progressRate);
 
   // Filter submissions in this district
   const regionSubmissions = submissions.filter(s => myPplIds.includes(s.pplId));
@@ -177,7 +304,49 @@ export default function RegCoDashboard({
           <p className="text-3xl font-display font-black text-indigo-600">{remainingSticker}</p>
           <span className="text-[10px] text-slate-500 block mt-1 font-mono">{usedSticker}/{allocatedSticker} digunakan</span>
         </div>
+        <div className="geo-card p-4 shadow-none">
+          <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest leading-none mb-1">
+            Ranking Korwil
+            </p>
+            <p className="text-3xl font-display font-black text-amber-600">
+              #{myKorwilRank}
+            </p>
+            <span className="text-[10px] text-slate-500 block mt-1 font-mono">
+              dari {korwilRanking.length}
+            </span>
+        </div>
+        <div className="geo-card p-4 shadow-none">
+          <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">
+            Ranking PML
+          </p>
+          {topPmls.map(pml => (
+            <div key={pml.pml_id} className="mt-2">
+              <div className="font-semibold text-sm">
+                {pml.nama_pml}
+              </div>
+              <div className="text-amber-600 font-black text-lg">
+                #{pml.rank}
+              </div>
+              <div className="text-[10px] text-slate-500">
+                dari {pmlRanking.length} PML ({pml.progress_rate} %)
+              </div>
+            </div>
+          ))}
+        </div>
+        <div className="geo-card p-4 shadow-none">
+          <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest leading-none mb-1">
+            PPL Terbaik
+          </p>
+          <p>{bestPpl?.nama_ppl ?? "-"}</p>
+          <p className="text-3xl font-display font-black text-amber-600">
+            #{bestPpl?.rank ?? 0}
+          </p>
+          <span className="text-[10px] text-slate-500 block mt-1 font-mono">
+            dari {pplRanking.length} PPL ({bestPpl?.progress_rate}%)
+          </span>
+        </div>
       </div>
+      
 
       {/* Progress Metric Box */}
       <div className="geo-card p-6 shadow-none flex flex-col md:flex-row md:items-center justify-between gap-6" id="region-progress-status-box">
@@ -199,6 +368,29 @@ export default function RegCoDashboard({
           </div>
         </div>
       </div>
+      <div className="grid grid-cols-3 gap-3 mt-4">
+        <div className="geo-card p-3">
+          <p className="text-xs text-slate-500">Belum Dikunjungi</p>
+          <p className="text-xl font-bold text-slate-600">
+            {notStartedSls}
+          </p>
+        </div>
+
+        <div className="geo-card p-3">
+          <p className="text-xs text-slate-500">Proses</p>
+          <p className="text-xl font-bold text-amber-600">
+            {inProgressSls}
+          </p>
+        </div>
+
+        <div className="geo-card p-3">
+          <p className="text-xs text-slate-500">Selesai</p>
+          <p className="text-xl font-bold text-emerald-600">
+            {completedSls}
+          </p>
+        </div>
+      </div>
+
 
       {/* Team Hierarchy Overview & Compliance Checkers */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -438,7 +630,7 @@ export default function RegCoDashboard({
                       <td className="py-2">
                         <div className="flex flex-col">
                           <span className="medium">{plot?.village ?? '-'}</span>
-                          <span className="text-xs text-slate-500">{plotMap.get(sub.plotId)?.namaSls ?? plotMap.get(sub.plotId)?.idSubsls}</span>
+                          <span className="text-xs text-slate-500">{plotMap.get(sub.plotId)?.namaSls ?? plotMap.get(sub.plotId)?.idSubsls} - {plot?.subSls ?? "-"}</span>
                         </div>
                       </td>
                       <td className="py-2"> {sub.status} </td>
